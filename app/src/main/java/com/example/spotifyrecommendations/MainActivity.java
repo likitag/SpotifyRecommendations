@@ -78,7 +78,10 @@ public class MainActivity extends AppCompatActivity {
         protected Long doInBackground(URL... urls) {
             //Log.i(TAG, "doInBackground: ");
             SpotifyApi spotifyApi = new SpotifyApi(token);
+
             //Log.i(TAG, "get api");
+
+
 
             username = spotifyApi.getCurrentUser().getDisplayName();
 //            Map<String, String> extra = new HashMap<>();

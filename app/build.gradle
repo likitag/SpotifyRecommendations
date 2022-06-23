@@ -39,4 +39,5 @@ dependencies {
     implementation 'androidx.browser:browser:1.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'nl.jiankai:spotify-web-api-wrapper:1.5.7'
+    implementation "com.github.parse-community.Parse-SDK-Android:parse:3.0.0"
 }
