@@ -18,6 +18,9 @@
         android:theme="@style/Theme.SpotifyRecommendations"
         tools:targetApi="31">
         <activity
+            android:name=".RatingActivity"
+            android:exported="false" />
+        <activity
             android:name=".PlaylistActivity"
             android:exported="false" />
         <activity

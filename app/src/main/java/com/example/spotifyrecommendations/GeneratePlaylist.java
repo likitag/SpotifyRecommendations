@@ -2,6 +2,7 @@ package com.example.spotifyrecommendations;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -143,16 +144,16 @@ public class GeneratePlaylist extends AppCompatActivity {
             Log.i(TAG, "done creating songs");
 
             super.onPostExecute(aLong);
+            Intent spotify_app = new Intent(Intent.ACTION_VIEW);
+            spotify_app.setData(Uri.parse(playlist_uri));
+            Intent rating = new Intent(GeneratePlaylist.this, RatingActivity.class);
 
-            //SpotifyApp
+            TaskStackBuilder.create(GeneratePlaylist.this)
+                    .addNextIntent( rating)
+                    // use this method if you want "intentOnTop" to have it's parent chain of activities added to the stack. Otherwise, more "addNextIntent" calls will do.
+                    .addNextIntentWithParentStack( spotify_app )
+                    .startActivities();
 
-            //Intent i = new Intent(GeneratePlaylist.this, PlaylistActivity.class);
-           // startActivity(i);
-
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse(playlist_uri));
-            startActivity(i);
-            finish();
 
         }
 
