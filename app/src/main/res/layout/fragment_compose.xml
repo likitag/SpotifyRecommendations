@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter desired playlist length"
+        android:hint="enter desired playlist length minutes"
         android:inputType="textMultiLine" />
 
     <EditText
@@ -22,7 +22,7 @@
         android:layout_below="@id/etLength"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter artist seeds"
+        android:hint="enter an artist"
         android:inputType="textMultiLine" />
 
     <EditText
@@ -32,7 +32,7 @@
         android:layout_below="@id/etArtists"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter genre seeds"
+        android:hint="enter a genre"
         android:inputType="textMultiLine" />
 
     <EditText
@@ -42,7 +42,7 @@
         android:layout_below="@id/etGenres"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter track seeds"
+        android:hint="enter a song"
         android:inputType="textMultiLine" />
 
     <Button

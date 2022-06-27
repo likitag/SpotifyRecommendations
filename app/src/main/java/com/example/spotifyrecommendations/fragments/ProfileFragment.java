@@ -1,27 +1,47 @@
 package com.example.spotifyrecommendations.fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.spotifyrecommendations.Playlist;
+import com.example.spotifyrecommendations.ProfileAdapter;
 import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.Song;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ProfileFragment extends Fragment {
     private RecyclerView rvPlaylists;
     private TextView tvUsername;
-    private ImageView ivProfile;
     String username;
     String token;
+    protected ProfileAdapter adapter;
+    protected List<Playlist> allPlaylists;
+    private SwipeRefreshLayout swipeContainer;
+    ParseUser currentUser;
+
+
 
 
 
@@ -39,8 +59,74 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         tvUsername = view.findViewById(R.id.tvUsername);
         tvUsername.setText(username);
+        rvPlaylists = view.findViewById(R.id.rvPlaylists);
+        rvPlaylists.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvPlaylists.getContext(), DividerItemDecoration.HORIZONTAL);
+        rvPlaylists.addItemDecoration(dividerItemDecoration);
+
+
+
+        allPlaylists = new ArrayList<>();
+        adapter = new ProfileAdapter(getContext(), allPlaylists);
+
+        rvPlaylists.setAdapter(adapter);
+
+        queryPlaylists();
+
+
+        ParseUser user = getArguments().getParcelable("username");
+
+        if (user!=null){
+            currentUser = user;
+        }
+        else{
+            currentUser = ParseUser.getCurrentUser();
+
+        }
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                adapter.clear();
+                queryPlaylists();
+                // ...the data has come back, add new items to your adapter...
+                //adapter.addAll(...);
+                // Now we call setRefreshing(false) to signal refresh has finished
+                swipeContainer.setRefreshing(false);
+            }
+        });
 
     }
+
+    private void queryPlaylists() {
+        // specify what type of data we want to query - Post.class
+        ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
+
+
+        // start an asynchronous call for posts
+        query.findInBackground(new FindCallback<Playlist>() {
+            @Override
+            public void done(List<Playlist> playlists, ParseException e) {
+                // check for errors
+                if (e != null) {
+                    Log.e("TAG", "Issue with getting playlists", e);
+                    return;
+                }
+
+                // for debugging purposes let's print every post description to logcat
+
+
+                // save received posts to list and notify adapter of new data
+                allPlaylists.addAll(playlists);
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+
+
 
 
 }

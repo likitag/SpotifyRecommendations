@@ -71,7 +71,7 @@ public class Playlist extends ParseObject {
     }
 
     public void setURI(String uri){
-        put(KEY_NAME, uri);
+        put(KEY_URI, uri);
     }
 
 

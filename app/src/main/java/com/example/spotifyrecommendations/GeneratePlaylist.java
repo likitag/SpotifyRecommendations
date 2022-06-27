@@ -3,6 +3,7 @@ package com.example.spotifyrecommendations;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -61,6 +62,7 @@ public class GeneratePlaylist extends AppCompatActivity {
 
         Log.i(TAG, spotifyRecs.get(0));
         new Task().execute();
+
 
     }
 
@@ -129,7 +131,9 @@ public class GeneratePlaylist extends AppCompatActivity {
 
             spotifyApi.addItemsToPlaylist(uris, playlistId, 0);
             playlist_uri = spotifyApi.getPlaylist(playlistId, extra).getUri();
-            //savePlaylist(playlistName, spotifyRecs.size(), playlistId, ParseUser.getCurrentUser(), spotifyApi.getPlaylist(playlistId, extra).getUri());
+
+            Log.i(TAG, "uri" + playlist_uri);
+            savePlaylist(playlistName, spotifyRecs.size(), playlistId, ParseUser.getCurrentUser(), playlist_uri);
             Log.i(TAG, "finsihed adding items to new playlist ");
 
             return null;
@@ -139,8 +143,16 @@ public class GeneratePlaylist extends AppCompatActivity {
             Log.i(TAG, "done creating songs");
 
             super.onPostExecute(aLong);
-            Intent i = new Intent(GeneratePlaylist.this, PlaylistActivity.class);
+
+            //SpotifyApp
+
+            //Intent i = new Intent(GeneratePlaylist.this, PlaylistActivity.class);
+           // startActivity(i);
+
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(playlist_uri));
             startActivity(i);
+            finish();
 
         }
 

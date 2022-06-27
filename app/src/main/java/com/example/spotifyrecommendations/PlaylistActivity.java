@@ -1,12 +1,18 @@
 package com.example.spotifyrecommendations;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
+import com.example.spotifyrecommendations.fragments.ComposeFragment;
+import com.example.spotifyrecommendations.fragments.ProfileFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -18,6 +24,7 @@ public class PlaylistActivity extends AppCompatActivity {
     RecyclerView rvSongs;
     protected PlaylistAdapter adapter;
     protected List<Song> allSongs;
+    //BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +34,12 @@ public class PlaylistActivity extends AppCompatActivity {
         rvSongs = findViewById(R.id.rvSongs);
         allSongs = new ArrayList<>();
         adapter = new PlaylistAdapter(this, allSongs);
+        //bottomNavigationView = findViewById(R.id.bottomNavigation);
 
         rvSongs.setAdapter(adapter);
         rvSongs.setLayoutManager(new LinearLayoutManager(this));
         queryPosts();
+
     }
     private void queryPosts() {
         // specify what type of data we want to query - Post.class
