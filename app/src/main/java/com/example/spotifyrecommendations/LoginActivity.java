@@ -37,6 +37,8 @@ public class LoginActivity extends AppCompatActivity {
     String username;
     String password;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

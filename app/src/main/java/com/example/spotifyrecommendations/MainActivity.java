@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.spotifyrecommendations.fragments.ComposeFragment;
 import com.example.spotifyrecommendations.fragments.ProfileFragment;
@@ -17,28 +19,51 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.spotify.sdk.android.auth.AuthorizationClient;
 
 import java.net.URL;
 import java.util.List;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import spotify.api.spotify.SpotifyApi;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MAIN";
     BottomNavigationView bottomNavigationView;
     String token;
     String username;
+    MenuItem logout;
     final FragmentManager fragmentManager = getSupportFragmentManager();
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_logout) {
+            Toast.makeText(this, "logging out", Toast.LENGTH_SHORT).show();
+            AuthorizationClient.clearCookies(getApplicationContext());
+            Intent i = new Intent(this, LoginActivity.class);
+            startActivity(i);
+            return true;
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        logout = findViewById(R.id.action_logout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         Intent i2 = getIntent();
         Bundle b = i2.getExtras();
