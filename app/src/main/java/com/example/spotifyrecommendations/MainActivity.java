@@ -14,9 +14,18 @@ import android.view.MenuItem;
 import com.example.spotifyrecommendations.fragments.ComposeFragment;
 import com.example.spotifyrecommendations.fragments.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 import java.net.URL;
+import java.util.List;
 
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.UserPrivate;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import spotify.api.spotify.SpotifyApi;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,32 +46,61 @@ public class MainActivity extends AppCompatActivity {
         if(b!=null)
         {
             token =(String) b.get("token");
-            //Log.i(TAG, token);
 
         }
 
+        kaaes.spotify.webapi.android.SpotifyApi api_kaees = new kaaes.spotify.webapi.android.SpotifyApi();
+        api_kaees.setAccessToken(token);
+        SpotifyService service =  api_kaees.getService();
+        
+        service.getMe(new Callback<UserPrivate>() {
+            @Override
+            public void success(UserPrivate userPrivate, Response response) {
+                Log.d(TAG, "success: ");
+                username = userPrivate.display_name;
+                
+            }
 
-        new Task().execute();
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d(TAG, "failure: ");
+
+            }
+        });
+        
+
+
+        //new Task().execute();
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 Fragment fragment;
                 switch (menuItem.getItemId()) {
+
+
+                    case R.id.action_add:
+
+                        //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
+                        Bundle bundle2 = new Bundle();
+                        Log.i(TAG, "onNavigationItemSelected: " + token);
+                        bundle2.putString("token", token);
+                        fragment = new ComposeFragment();
+                        fragment.setArguments(bundle2);
+                        break;
+
                     case R.id.action_home:
+                        default:
                         //Toast.makeText(MainActivity.this, "Home!", Toast.LENGTH_SHORT).show();
                         Bundle bundle = new Bundle();
                         bundle.putString("username", username );
+                        bundle.putString("token", token);
                         fragment = new ProfileFragment();
                         fragment.setArguments(bundle);
 
 
                         break;
 
-                    case R.id.action_add:
-                    default:
-                        //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
-                        fragment = new ComposeFragment();
-                        break;
                 }
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
@@ -70,52 +108,47 @@ public class MainActivity extends AppCompatActivity {
         });
         bottomNavigationView.setSelectedItemId(R.id.action_home);
 
+        //queryPlaylists();
+
     }
 
-    private class Task extends AsyncTask<URL, Integer, Long> {
+    private void queryPlaylists() {
+        ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
+        query.include(Playlist.KEY_AUTHOR);
+        query.findInBackground(new FindCallback<Playlist>() {
+            @Override
+            public void done(List<Playlist> playlists, ParseException e) {
+                if(e!=null){
+                    Log.e(TAG, "issue with getting playlists", e);
+                    return;
 
-        @Override
-        protected Long doInBackground(URL... urls) {
-            //Log.i(TAG, "doInBackground: ");
-            SpotifyApi spotifyApi = new SpotifyApi(token);
+                }
+                for (Playlist playlist : playlists){
+                    Log.i(TAG, "Playlist: " + playlist.getName());
 
-            //Log.i(TAG, "get api");
+                }
 
-
-
-            username = spotifyApi.getCurrentUser().getDisplayName();
-//            Map<String, String> extra = new HashMap<>();
-//            String albumName = spotifyApi.getAlbum("4aawyAB9vmqN3uQ7FjRGTy", extra).getName();
-//
-//            List<String> seedArtists = new ArrayList<>();
-//            seedArtists.add("4NHQUGzhtTLFvgF5SZesLK");
-//
-//            List<String> seedGenres = new ArrayList<>();
-//            seedGenres.add("classical");
-//            seedGenres.add("country");
-//
-//            List<String> seedTracks = new ArrayList<>();
-//            seedTracks.add("0c6xIDDpzE81m2q797ordA");
-            //Log.i(TAG, "doInBackground: ");
-            //CreateUpdatePlaylistRequestBody requestBody = new CreateUpdatePlaylistRequestBody("my new playlist", "made this with api", false, false);
-            //spotifyApi.createPlaylist(spotifyApi.getCurrentUser().getId(), requestBody);
-           // Log.i(TAG,  "made a new playlist");
-
-
-
-//            String song1 = spotifyApi.getRecommendations(seedArtists, seedGenres, seedTracks, extra).getTracks().get(2).getName();
-//            Log.i(TAG, song1);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Long aLong) {
-            super.onPostExecute(aLong);
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-        }
+            }
+        });
     }
+
+//    private class Task extends AsyncTask<URL, Integer, Long> {
+//
+//        @Override
+//        protected Long doInBackground(URL... urls) {
+//            SpotifyApi spotifyApi = new SpotifyApi(token);
+//            username = spotifyApi.getCurrentUser().getDisplayName();
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Long aLong) {
+//            super.onPostExecute(aLong);
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(Integer... values) {
+//            super.onProgressUpdate(values);
+//        }
+//    }
 }
