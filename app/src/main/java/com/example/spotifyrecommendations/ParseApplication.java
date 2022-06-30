@@ -12,6 +12,7 @@ public class ParseApplication extends Application {
         super.onCreate();
         ParseObject.registerSubclass(Playlist.class);
         ParseObject.registerSubclass(Song.class);
+        ParseObject.registerSubclass(Post.class);
          Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("sTfGkOZi0O5umnTeELENYSoABkpsROsDBWfit6nr")
                 .clientKey("2hFIFOfcuFSKT0BzYpJcyJFS2lI9pCs8mjVJemQH")

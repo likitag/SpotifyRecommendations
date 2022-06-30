@@ -1,5 +1,6 @@
 package com.example.spotifyrecommendations;
 
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.spotifyrecommendations.fragments.ProfileFragment;
 
 import java.util.List;
 
@@ -86,6 +89,19 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
                 // get the movie at the position, this won't work if the class is static
                 Playlist playlist = playlists.get(position);
+
+                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
+                spotify_app.setData(Uri.parse(playlist.getURI()));
+
+//                Intent profile = new Intent(context, MainActivity.class);
+////                profile.putExtra("playlist id", playlistId);
+////                profile.putExtra("token", token);
+//
+//                TaskStackBuilder.create(context)
+//                        .addNextIntent(profile)
+//                        // use this method if you want "intentOnTop" to have it's parent chain of activities added to the stack. Otherwise, more "addNextIntent" calls will do.
+//                        .addNextIntentWithParentStack( spotify_app )
+//                        .startActivities();
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(playlist.getURI()));

@@ -1,5 +1,8 @@
 package com.example.spotifyrecommendations.fragments;
 
+import android.app.TaskStackBuilder;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -18,17 +21,27 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.spotifyrecommendations.GeneratePlaylist;
 import com.example.spotifyrecommendations.Playlist;
 import com.example.spotifyrecommendations.ProfileAdapter;
 import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.RatingActivity;
 import com.example.spotifyrecommendations.Song;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import kaaes.spotify.webapi.android.models.UserPrivate;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import spotify.api.spotify.SpotifyApi;
+import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
 
 public class ProfileFragment extends Fragment {
@@ -50,8 +63,11 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
+
         username = getArguments().getString("username");
         return inflater.inflate(R.layout.fragment_profile, container, false);
+
+
     }
 
     @Override
@@ -125,8 +141,33 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private class Task extends AsyncTask<URL, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(URL... urls) {
+
+            SpotifyApi spotifyApi = new SpotifyApi(token);
+
+
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Long aLong) {
+
+
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
 
 
 
 
-}
+        }
+
+
+
+
+
+} }

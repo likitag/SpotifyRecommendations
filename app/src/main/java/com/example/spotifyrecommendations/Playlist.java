@@ -1,14 +1,15 @@
 package com.example.spotifyrecommendations;
 
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+
+import java.io.Serializable;
 import java.util.List;
 
 @ParseClassName("Playlist")
-public class Playlist extends ParseObject {
+public class Playlist extends ParseObject implements Serializable {
 
     public static final String KEY_SONGS = "Songs";
     public static final String KEY_AUTHOR = "Author";
@@ -17,9 +18,16 @@ public class Playlist extends ParseObject {
     public static final String KEY_SPOTIFYID = "SpotifyId";
     public static final String KEY_NAME = "Name";
     public static final String KEY_URI = "URI";
+    public static final String KEY_OBJECT_ID = "ObjectId";
 
-    public List<String> getSongs(){
+
+
+    public List<String> getSongs() {
         return getList(KEY_SONGS);
+    }
+
+    public String getPlaylistId(){
+        return getObjectId();
     }
 
     public void setSongs(List<String> songs){
@@ -49,6 +57,7 @@ public class Playlist extends ParseObject {
     public void setLike(Boolean like){
         put(KEY_LIKE, like);
     }
+
 
     public String getSpotifyid(){
         return getString(KEY_SPOTIFYID);

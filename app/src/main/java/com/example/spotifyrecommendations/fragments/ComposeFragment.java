@@ -64,6 +64,7 @@ public class ComposeFragment extends Fragment {
     private static ArrayList <String> rectrackIds;
     private static ArrayList <String> rectrackIds_backup;
     Boolean isTask1Completed=false;
+    EditText etName;
 
 
 
@@ -73,6 +74,8 @@ public class ComposeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         token = getArguments().get("token").toString();
 
         // Inflate the layout for this fragment
@@ -89,6 +92,7 @@ public class ComposeFragment extends Fragment {
         etGenres = view.findViewById(R.id.etGenres);
         etTracks= view.findViewById(R.id.etTracks);
         btnSubmit = view.findViewById(R.id.btnSubmit);
+        etName = view.findViewById(R.id.etName);
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,6 +206,7 @@ public class ComposeFragment extends Fragment {
                 i.putExtra("token", token);
                 i.putExtra("time", time);
                 i.putStringArrayListExtra("rec tracks", (ArrayList<String>) rectrackIds);
+                i.putExtra("playlist name", etName.getText().toString());
                 startActivity(i);
                 ((Activity) getActivity()).overridePendingTransition(0, 0);
             }

@@ -14,11 +14,15 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.spotifyrecommendations.fragments.ComposeFragment;
+import com.example.spotifyrecommendations.fragments.PostFragment;
 import com.example.spotifyrecommendations.fragments.ProfileFragment;
+import com.example.spotifyrecommendations.fragments.SocialFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
 import java.net.URL;
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_logout) {
             Toast.makeText(this, "logging out", Toast.LENGTH_SHORT).show();
             AuthorizationClient.clearCookies(getApplicationContext());
+            ParseUser.logOut();
+            ParseUser currentUser = ParseUser.getCurrentUser();
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
             return true;
@@ -112,6 +118,23 @@ public class MainActivity extends AppCompatActivity {
                         bundle2.putString("token", token);
                         fragment = new ComposeFragment();
                         fragment.setArguments(bundle2);
+                        break;
+
+                    case R.id.action_social:
+
+                        //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
+                        Bundle bundle3 = new Bundle();
+                        Log.i(TAG, "onNavigationItemSelected: " + token);
+                        bundle3.putString("token", token);
+                        fragment = new SocialFragment();
+                        fragment.setArguments(bundle3);
+                        break;
+
+                    case R.id.action_post:
+
+
+                        fragment = new PostFragment();
+
                         break;
 
                     case R.id.action_home:
