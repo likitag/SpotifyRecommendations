@@ -119,6 +119,8 @@ public class ProfileFragment extends Fragment {
     private void queryPlaylists() {
         // specify what type of data we want to query - Post.class
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
+        query.whereEqualTo(Playlist.KEY_AUTHOR, ParseUser.getCurrentUser());
+        query.addDescendingOrder("createdAt");
 
 
         // start an asynchronous call for posts

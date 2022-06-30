@@ -112,9 +112,9 @@ public class GeneratePlaylist extends AppCompatActivity {
                 rating.putExtra("new playlist", (Serializable) newPlaylist);
                 rating.putExtra("token", token);
 
-                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
-                spotify_app.setData(Uri.parse(playlist_uri));
-                startActivity(spotify_app);
+//                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
+//                spotify_app.setData(Uri.parse(playlist_uri));
+//                startActivity(spotify_app);
 
                 startActivity(rating);
                 finish();
