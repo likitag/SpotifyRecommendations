@@ -1,6 +1,5 @@
-package com.example.spotifyrecommendations;
+package com.example.spotifyrecommendations.adapters;
 
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,7 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.spotifyrecommendations.fragments.ProfileFragment;
+import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.models.Playlist;
 
 import java.util.List;
 

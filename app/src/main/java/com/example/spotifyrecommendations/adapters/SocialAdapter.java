@@ -1,34 +1,37 @@
-package com.example.spotifyrecommendations;
+package com.example.spotifyrecommendations.adapters;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
-import com.example.spotifyrecommendations.Post;
-import com.parse.FindCallback;
+import com.example.spotifyrecommendations.models.CustomUser;
+import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.models.Post;
+
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -81,6 +84,8 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
         ImageView ivPostImage;
         ImageButton ibLikePost;
         TextView tvLikeNum;
+//        LottieAnimationView like;
+        private GestureDetector gestureDetector;
         public ViewHolder(@NonNull View itemView)  {
             super(itemView);
             tvUsername = itemView.findViewById(R.id.tvUser);
@@ -88,48 +93,84 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             ivPostImage = itemView.findViewById(R.id.ivPlaylistImage);
             ibLikePost = itemView.findViewById(R.id.ibLikePost);
             tvLikeNum = itemView.findViewById(R.id.tvLikeNum);
+//            like = itemView.findViewById(R.id.lottie_heart);
+
             ParseUser user = ParseUser.getCurrentUser();
 
-            ibLikePost.setOnClickListener(new View.OnClickListener() {
+
+
+
+            ivPostImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-
-
                         Post post = posts.get(position);
-                        int curr_likes = post.getLikes();
 
-                        try {
-                            //if not currently liked:
-                            ibLikePost.setImageResource(R.drawable.ic_heart_full);
-                            int ind = check_liked(post.getObjectId(), user);
-                            if (ind == -1){
-                                updatePostLikes(curr_likes + 1, post.getObjectId());
-                                user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
-                                user.saveInBackground();
+                        String uri = post.getPlaylistURI();
 
 
-                            }
-                            //is currently liked, need to remove
-                            else {
-                                ibLikePost.setImageResource(R.drawable.ic_heart_empty);
-                                JSONArray currFaves = user.getJSONArray("favorites");
-                                currFaves.remove(ind);
-                                user.put(CustomUser.KEY_FAVORITES, currFaves);
-                                user.saveInBackground();
 
-                                updatePostLikes(curr_likes - 1, post.getObjectId());
-
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(uri));
+                        context.startActivity(i);
                     }
 
-                    
+                }
+            });
+
+
+
+
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+
+                GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
+
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+
+
+                            Post post = posts.get(position);
+                            //int curr_likes = post.getLikes();
+
+                            try {
+                                //if not currently liked:
+//                                like.playAnimation();
+                                ibLikePost.setImageResource(R.drawable.ic_heart_full);
+                                int ind = check_liked(post.getObjectId(), user);
+                                if (ind == -1){
+                                    updatePostLikes(1, post.getObjectId());
+                                    user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
+                                    user.saveInBackground();
+
+                                }
+                                //is currently liked, need to remove
+                                else {
+                                    ibLikePost.setImageResource(R.drawable.ic_heart_empty);
+                                    JSONArray currFaves = user.getJSONArray("favorites");
+                                    currFaves.remove(ind);
+                                    user.put(CustomUser.KEY_FAVORITES, currFaves);
+                                    user.saveInBackground();
+
+                                    updatePostLikes(-1, post.getObjectId());
+
+                                }
+
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        }
+                        Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    gestureDetector.onTouchEvent(event);
+                    return true;
                 }
             });
 
@@ -149,7 +190,8 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                 public void done(ParseObject object, ParseException e) {
                     if (e == null) {
                         Log.i(TAG, "here!");
-                        object.put("Likes", new_likes);
+                        int curr_likes = (Integer) object.get("Likes");
+                        object.put("Likes", curr_likes + new_likes);
                         object.saveInBackground();
 
 
@@ -220,6 +262,7 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
         }
 
 
+
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
@@ -227,6 +270,7 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
                 // get the movie at the position, this won't work if the class is static
                 Post post = posts.get(position);
+
 
 //                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
 //                try {

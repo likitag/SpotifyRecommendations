@@ -14,11 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.spotifyrecommendations.Playlist;
-import com.example.spotifyrecommendations.Post;
-import com.example.spotifyrecommendations.ProfileAdapter;
+import com.example.spotifyrecommendations.models.Post;
 import com.example.spotifyrecommendations.R;
-import com.example.spotifyrecommendations.SocialAdapter;
+import com.example.spotifyrecommendations.adapters.SocialAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -78,6 +76,7 @@ public class SocialFragment extends Fragment {
 
     private void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.addDescendingOrder("createdAt");
 
 
         // start an asynchronous call for posts

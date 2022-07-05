@@ -2,6 +2,9 @@ package com.example.spotifyrecommendations;
 
 import android.app.Application;
 
+import com.example.spotifyrecommendations.models.Playlist;
+import com.example.spotifyrecommendations.models.Post;
+import com.example.spotifyrecommendations.models.Song;
 import com.parse.Parse;
 import com.parse.ParseObject;
 

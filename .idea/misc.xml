@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/borders.xml" value="0.102" />
+        <entry key="app/src/main/res/drawable/heart_selector.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_heart_empty.xml" value="0.2965" />
         <entry key="app/src/main/res/drawable/vector_compose_fab.xml" value="0.2965" />
         <entry key="app/src/main/res/layout/activity_generate_playlist.xml" value="0.3125" />

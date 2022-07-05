@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,18 +16,16 @@ import com.example.spotifyrecommendations.fragments.ComposeFragment;
 import com.example.spotifyrecommendations.fragments.PostFragment;
 import com.example.spotifyrecommendations.fragments.ProfileFragment;
 import com.example.spotifyrecommendations.fragments.SocialFragment;
+import com.example.spotifyrecommendations.models.Playlist;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
-import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
-import java.net.URL;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;

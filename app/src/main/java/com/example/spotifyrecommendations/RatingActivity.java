@@ -1,31 +1,23 @@
 package com.example.spotifyrecommendations;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
+import com.example.spotifyrecommendations.models.Playlist;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import spotify.api.spotify.SpotifyApi;
 
 public class RatingActivity extends AppCompatActivity {
     private static final String TAG = "Rating activity";

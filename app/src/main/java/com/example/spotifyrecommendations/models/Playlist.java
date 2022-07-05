@@ -1,4 +1,4 @@
-package com.example.spotifyrecommendations;
+package com.example.spotifyrecommendations.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;

@@ -1,12 +1,9 @@
-package com.example.spotifyrecommendations;
+package com.example.spotifyrecommendations.models;
 
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-
-import java.util.List;
 
 @ParseClassName("Post")
 public class Post extends ParseObject {
@@ -17,6 +14,7 @@ public class Post extends ParseObject {
     public static final String KEY_LIKES = "Likes";
     public static final String KEY_SAVES = "Saves";
     public static final String KEY_PLAYLIST = "Playlist";
+    public static final String KEY_PLAYLISTURI = "PlaylistURI";
 
 
 
@@ -44,6 +42,14 @@ public class Post extends ParseObject {
 
     public void setDescription(String description){
         put(KEY_DESCRIPTION, description);
+    }
+
+    public String getPlaylistURI(){
+        return getString(KEY_PLAYLISTURI);
+    }
+
+    public void setPlaylistURI(String uri){
+        put(KEY_PLAYLISTURI, uri);
     }
 
 

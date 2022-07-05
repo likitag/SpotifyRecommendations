@@ -16,25 +16,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.spotifyrecommendations.Playlist;
-import com.example.spotifyrecommendations.Post;
+import com.example.spotifyrecommendations.models.Playlist;
+import com.example.spotifyrecommendations.models.Post;
 import com.example.spotifyrecommendations.R;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -165,6 +157,8 @@ public class PostFragment extends Fragment {
         // specify what type of data we want to query - Post.class
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
 
+        query.whereEqualTo(Playlist.KEY_AUTHOR, ParseUser.getCurrentUser());
+
 
         // start an asynchronous call for posts
         query.findInBackground(new FindCallback<Playlist>() {
@@ -199,6 +193,7 @@ public class PostFragment extends Fragment {
         post.setDescription(description);
         post.setUser(currentUser);
         post.setPlaylist(Playlist);
+        post.setPlaylistURI(Playlist.getURI());
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {

@@ -1,18 +1,14 @@
 package com.example.spotifyrecommendations;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 
-import com.example.spotifyrecommendations.fragments.ComposeFragment;
-import com.example.spotifyrecommendations.fragments.ProfileFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.spotifyrecommendations.adapters.PlaylistAdapter;
+import com.example.spotifyrecommendations.models.Song;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;

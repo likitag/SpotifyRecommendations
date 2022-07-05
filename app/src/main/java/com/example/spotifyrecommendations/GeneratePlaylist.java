@@ -2,23 +2,20 @@ package com.example.spotifyrecommendations;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.spotifyrecommendations.models.Playlist;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -27,12 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.models.Track;
-import spotify.api.enums.QueryType;
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
-import spotify.models.recommendations.RecommendationCollection;
-import spotify.models.tracks.TrackFull;
 
 public class GeneratePlaylist extends AppCompatActivity {
     private static final String TAG = "Generate Playlist";

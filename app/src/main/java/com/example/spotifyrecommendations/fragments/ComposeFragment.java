@@ -160,7 +160,10 @@ public class ComposeFragment extends Fragment {
             types.add(QueryType.ARTIST);
             types.add(QueryType.TRACK);
 
+
+
             track_id = spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems().get(0).getId();
+
             artist_id = spotifyApi.searchItem(etArtists.getText().toString(), types, extra).getArtists().getItems().get(0).getId();
 
             listArtistId.add(artist_id);
