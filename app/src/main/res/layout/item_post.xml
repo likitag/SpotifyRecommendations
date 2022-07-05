@@ -28,7 +28,7 @@
         android:id="@+id/tvUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="username:" />
+        android:text="@string/username" />
 
 <!--    <com.airbnb.lottie.LottieAnimationView-->
 <!--        android:id="@+id/lottie_heart"-->

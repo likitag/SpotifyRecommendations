@@ -5,4 +5,5 @@
     <string name="logout">logout</string>
     <string name="back">back</string>
     <string name="choose_playlist">choose a playlist</string>
+    <string name="username">username:</string>
 </resources>
