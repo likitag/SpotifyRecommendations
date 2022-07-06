@@ -212,12 +212,15 @@ public class RatingActivity extends AppCompatActivity {
 
                 //indicates the instrumentalness of a track (0.5 and above is intrumental)
                 float instrumentalness = audioFeatures.getInstrumentalness();
+                Log.i(TAG, "instrumentalness: " + instrumentalness);
 
                 //indicates the happiness of a track (0 = sad, 1= happy)
                 float valence = audioFeatures.getValence();
+                Log.i(TAG, "valence: " + valence);
 
-                if ((seekInstrument == 0 && instrumentalness < 0.5) || (seekInstrument == 2 && instrumentalness > 0.5) || (seekMood == 0 && valence < 0.5) || (seekMood == 2 && valence > 0.5)){
-                    //TODO: delete song from playlist, not instrumental enough
+                if ((seekMood == 0 && valence < 0.2) || (seekMood == 2 && valence > 0.8)){
+
+                    //deletes a song from playlist if it doesn't satisfy mood requirements
                     items_to_delete.add(item);
                     Log.i(TAG, "wish to delete: " + item.getUri());
                     num_deleted++;
@@ -243,6 +246,8 @@ public class RatingActivity extends AppCompatActivity {
         protected void onPostExecute(Long aLong) {
             Log.i(TAG, "done removing songs from playlist" );
             Toast.makeText(RatingActivity.this, "removed songs", Toast.LENGTH_SHORT).show();
+
+            //TODO: take the num_deleted value, and add the same number of new tracks to the playlist, based on the reviews that the user gave
 
 
 

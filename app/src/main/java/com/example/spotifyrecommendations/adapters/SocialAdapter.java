@@ -1,5 +1,6 @@
 package com.example.spotifyrecommendations.adapters;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -84,7 +85,8 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
         ImageView ivPostImage;
         ImageButton ibLikePost;
         TextView tvLikeNum;
-//        LottieAnimationView like;
+        LottieAnimationView like;
+        LottieAnimationView unlike;
         private GestureDetector gestureDetector;
         public ViewHolder(@NonNull View itemView)  {
             super(itemView);
@@ -93,7 +95,62 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             ivPostImage = itemView.findViewById(R.id.ivPlaylistImage);
             ibLikePost = itemView.findViewById(R.id.ibLikePost);
             tvLikeNum = itemView.findViewById(R.id.tvLikeNum);
-//            like = itemView.findViewById(R.id.lottie_heart);
+            like = itemView.findViewById(R.id.lottie_heart);
+            like.setVisibility(View.GONE);
+            unlike = itemView.findViewById(R.id.lottie_break_heart);
+            unlike.setVisibility(View.GONE);
+
+            like.addAnimatorListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    like.setVisibility(View.VISIBLE);
+                    Toast.makeText(context, "animating...", Toast.LENGTH_SHORT).show();
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    Toast.makeText(context, " done animating...", Toast.LENGTH_SHORT).show();
+                    like.setVisibility(View.GONE);
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+
+            unlike.addAnimatorListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    unlike.setVisibility(View.VISIBLE);
+                    Toast.makeText(context, "animating...", Toast.LENGTH_SHORT).show();
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    Toast.makeText(context, " done animating...", Toast.LENGTH_SHORT).show();
+                    unlike.setVisibility(View.GONE);
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
 
             ParseUser user = ParseUser.getCurrentUser();
 
@@ -137,17 +194,21 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
                             try {
                                 //if not currently liked:
-//                                like.playAnimation();
                                 ibLikePost.setImageResource(R.drawable.ic_heart_full);
                                 int ind = check_liked(post.getObjectId(), user);
                                 if (ind == -1){
+                                    like.setVisibility(View.VISIBLE);
+                                    like.playAnimation();
                                     updatePostLikes(1, post.getObjectId());
                                     user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
                                     user.saveInBackground();
 
                                 }
+
                                 //is currently liked, need to remove
                                 else {
+                                    unlike.setVisibility(View.VISIBLE);
+                                    unlike.playAnimation();
                                     ibLikePost.setImageResource(R.drawable.ic_heart_empty);
                                     JSONArray currFaves = user.getJSONArray("favorites");
                                     currFaves.remove(ind);
