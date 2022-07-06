@@ -3,16 +3,24 @@ package com.example.spotifyrecommendations.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
+import com.example.spotifyrecommendations.models.Post;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -67,6 +75,34 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
             super(itemView);
             tvPlaylistName = itemView.findViewById(R.id.tvPlaylistName);
 
+//            itemView.setOnTouchListener(new View.OnTouchListener() {
+//
+//                GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
+//
+//                    @Override
+//                    public void onLongPress(MotionEvent e) {
+//                        super.onLongPress(e);
+//                        int position = getAdapterPosition();
+//                        if (position != RecyclerView.NO_POSITION) {
+//                            Playlist playlist = playlists.get(position);
+//
+//
+//                        }
+//                    }
+//
+//                    @Override
+//                    public boolean onDoubleTap(MotionEvent e) {
+//                        Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
+//                        return true;
+//                    }
+//                });
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    gestureDetector.onTouchEvent(event);
+//                    return true;
+//                }
+//            });
+
 
             itemView.setOnClickListener(this);
         }
@@ -77,6 +113,8 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
             tvPlaylistName.setText(playlist.getName());
 
         }
+
+
 
 
 

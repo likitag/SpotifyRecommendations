@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kaaes.spotify.webapi.android.SpotifyService;
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
@@ -104,6 +105,7 @@ public class GeneratePlaylist extends AppCompatActivity {
                 rating.putExtra("new playlist id", playlist_obj_id);
                 rating.putExtra("new playlist", (Serializable) newPlaylist);
                 rating.putExtra("token", token);
+                rating.putExtra("spotify playlist id", playlistId);
 
 //                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
 //                spotify_app.setData(Uri.parse(playlist_uri));

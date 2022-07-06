@@ -47,5 +47,105 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:text="How would you rate this playlist?"
+        android:textSize="18sp"
         android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvMood"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvTitle"
+        android:layout_marginStart="10dp"
+        android:text="Mood?" />
+
+    <TextView
+        android:id="@+id/tvTooSad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/seekBarMood"
+        android:layout_marginStart="10dp"
+        android:textSize="10dp"
+        android:text="Too Sad" />
+
+    <TextView
+        android:id="@+id/tvTooHappy"
+        android:textSize="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/seekBarMood"
+        android:layout_alignBottom="@id/seekBarMood"
+        android:layout_marginStart="10dp"
+        android:text="Too Happy" />
+
+
+
+
+    <TextView
+        android:id="@+id/tvInstrumentalTitle"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekBarMood"
+        android:layout_marginStart="10dp"
+        android:text="Instrumentals?" />
+
+    <TextView
+        android:id="@+id/tvTooLittle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/seekBarInstrument"
+        android:layout_marginStart="10dp"
+        android:textSize="10dp"
+        android:text="Too Little" />
+    <SeekBar
+        android:id="@+id/seekBarInstrument"
+        android:layout_width="200dp"
+        android:layout_toEndOf="@id/tvTooLittle"
+        android:layout_below="@id/tvInstrumentalTitle"
+        android:layout_height="36dp"
+        android:layout_alignBottom="@id/seekBarInstrument"
+        android:layout_marginTop="-2dp"
+        android:max="2" />
+
+    <TextView
+        android:id="@+id/tvTooMuch"
+        android:textSize="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/seekBarInstrument"
+        android:layout_alignBottom="@id/seekBarInstrument"
+        android:layout_marginStart="10dp"
+        android:text="Too Much" />
+
+
+
+    <SeekBar
+        android:id="@+id/seekBarMood"
+        android:layout_toEndOf="@id/tvTooSad"
+        android:layout_width="200dp"
+        android:layout_height="36dp"
+        android:layout_below="@id/tvMood"
+        android:layout_marginTop="-2dp"
+        android:max="2" />
+
+    <Button
+        android:id="@+id/btnUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekBarInstrument"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Update My Playlist!" />
+
+    <Button
+        android:id="@+id/btnKeep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnUpdate"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Save this Playlist!" />
+
+
 </RelativeLayout>
