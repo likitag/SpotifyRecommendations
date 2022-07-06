@@ -36,6 +36,7 @@ import spotify.models.playlists.PlaylistItem;
 import spotify.models.playlists.PlaylistTrack;
 import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 import spotify.models.playlists.requests.DeleteItemsPlaylistRequestBody;
+import spotify.models.recommendations.RecommendationCollection;
 import spotify.models.tracks.TrackFull;
 
 public class RatingActivity extends AppCompatActivity {
@@ -47,6 +48,7 @@ public class RatingActivity extends AppCompatActivity {
     String playlist_id;
     String token;
     Map<String, String> options = new HashMap<>();
+
     Playlist playlist;
 
     String spotify_playlist_id;
@@ -68,6 +70,10 @@ public class RatingActivity extends AppCompatActivity {
     int seekMood;
     int seekInstrument;
 
+    List<String> listArtistId = new ArrayList<>();
+    List<String> listTrackId = new ArrayList<>();
+    List<String> listGenres = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +93,10 @@ public class RatingActivity extends AppCompatActivity {
             Log.i(TAG, playlist.getName());
             Log.i(TAG, playlist_id);
             token =(String) b.get("token");
+
+            listArtistId = getIntent().getStringArrayListExtra("listArtists");
+            listTrackId = getIntent().getStringArrayListExtra("listTracks");
+            listGenres = getIntent().getStringArrayListExtra("listGenres");
 
 
         }
@@ -192,11 +202,8 @@ public class RatingActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(URL... urls) {
             SpotifyApi spotifyApi = new SpotifyApi(token);
-            //String userId = spotifyApi.getCurrentUser().getId();
 
             Log.i(TAG, "initial num songs: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
-
-           // List<PlaylistItem> items = new ArrayList<>();
             List<PlaylistTrack> tracks = spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems();
 
             for (int i = 0; i < tracks.size(); i++){
@@ -211,8 +218,8 @@ public class RatingActivity extends AppCompatActivity {
                 AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
 
                 //indicates the instrumentalness of a track (0.5 and above is intrumental)
-                float instrumentalness = audioFeatures.getInstrumentalness();
-                Log.i(TAG, "instrumentalness: " + instrumentalness);
+//                float instrumentalness = audioFeatures.getInstrumentalness();
+//                Log.i(TAG, "instrumentalness: " + instrumentalness);
 
                 //indicates the happiness of a track (0 = sad, 1= happy)
                 float valence = audioFeatures.getValence();
@@ -231,12 +238,50 @@ public class RatingActivity extends AppCompatActivity {
             Log.i(TAG, "num items to delete: " + items_to_delete.size());
 
             DeleteItemsPlaylistRequestBody requestBody = new DeleteItemsPlaylistRequestBody(items_to_delete, spotifyApi.getPlaylist(spotify_playlist_id, options).getSnapshotId());
-
+            
+            //delete all the songs from the playlist that do not meet the user's mood expectations 
             spotifyApi.deleteItemsFromPlaylist(spotify_playlist_id, requestBody);
+            Log.i(TAG, "num songs after deleting: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
 
 
+            //TODO: take the num_deleted value, and add the same number of new tracks to the playlist, based on the reviews that the user gave
+            Map<String, String> rec_extra = new HashMap<>();
+            if (seekMood == 0){
+                rec_extra.put("min_valence", "0.3");
+            }
+            else if (seekMood == 2){
+                rec_extra.put("max_valence", "0.7");
+            }
 
-            Log.i(TAG, "final num songs: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
+            if (num_deleted !=0) {
+
+                rec_extra.put("limit", Integer.toString(num_deleted));
+
+                Log.i(TAG, "artist:  " + listArtistId.get(0));
+                Log.i(TAG, "track:  " + listTrackId.get(0));
+                Log.i(TAG, "genre:  " + listGenres.get(0));
+                RecommendationCollection recommendations = spotifyApi.getRecommendations(listArtistId, listGenres, listTrackId, rec_extra);
+
+                List<String> uris = new ArrayList<>();
+                for (int i = 0; i < recommendations.getTracks().size(); i++) {
+                    String uri = spotifyApi.getTrack(recommendations.getTracks().get(i).getId(), options).getUri();
+                    uris.add(uri);
+                }
+
+
+                spotifyApi.addItemsToPlaylist(uris, spotify_playlist_id, 0);
+
+                Log.i(TAG, "added new songs for the user");
+                Log.i(TAG, "final num songs after adding: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
+            }
+            else {
+
+                Log.i(TAG, "no songs to delete");
+
+            }
+
+            
+            
 
 
 
@@ -244,10 +289,10 @@ public class RatingActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(Long aLong) {
-            Log.i(TAG, "done removing songs from playlist" );
-            Toast.makeText(RatingActivity.this, "removed songs", Toast.LENGTH_SHORT).show();
+           // Log.i(TAG, "done removing songs from playlist" );
+            Toast.makeText(RatingActivity.this, "done updating!", Toast.LENGTH_SHORT).show();
 
-            //TODO: take the num_deleted value, and add the same number of new tracks to the playlist, based on the reviews that the user gave
+           
 
 
 

@@ -209,6 +209,9 @@ public class ComposeFragment extends Fragment {
                 i.putExtra("token", token);
                 i.putExtra("time", time);
                 i.putStringArrayListExtra("rec tracks", (ArrayList<String>) rectrackIds);
+                i.putStringArrayListExtra("listArtists", (ArrayList<String>) listArtistId);
+                i.putStringArrayListExtra("listTracks", (ArrayList<String>) listTrackId);
+                i.putStringArrayListExtra("listGenres", (ArrayList<String>) listGenres);
                 i.putExtra("playlist name", etName.getText().toString());
                 startActivity(i);
                 ((Activity) getActivity()).overridePendingTransition(0, 0);

@@ -43,6 +43,10 @@ public class GeneratePlaylist extends AppCompatActivity {
 
     String playlist_obj_id;
 
+    List<String> listArtistId = new ArrayList<>();
+    List<String> listTrackId = new ArrayList<>();
+    List<String> listGenres = new ArrayList<>();
+
 
 
     @Override
@@ -62,6 +66,10 @@ public class GeneratePlaylist extends AppCompatActivity {
             spotifyRecs = getIntent().getStringArrayListExtra("rec tracks");
             time = (Integer) b.get("time");
             playlistName = (String) b.get("playlist name");
+
+            listArtistId = getIntent().getStringArrayListExtra("listArtists");
+            listTrackId = getIntent().getStringArrayListExtra("listTracks");
+            listGenres = getIntent().getStringArrayListExtra("listGenres");
 
         }
 
@@ -106,6 +114,9 @@ public class GeneratePlaylist extends AppCompatActivity {
                 rating.putExtra("new playlist", (Serializable) newPlaylist);
                 rating.putExtra("token", token);
                 rating.putExtra("spotify playlist id", playlistId);
+                rating.putStringArrayListExtra("listArtists", (ArrayList<String>) listArtistId);
+                rating.putStringArrayListExtra("listTracks", (ArrayList<String>) listTrackId);
+                rating.putStringArrayListExtra("listGenres", (ArrayList<String>) listGenres);
 
 //                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
 //                spotify_app.setData(Uri.parse(playlist_uri));
