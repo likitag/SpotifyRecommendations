@@ -79,44 +79,42 @@
         android:text="Too Happy" />
 
 
-
-
     <TextView
-        android:id="@+id/tvInstrumentalTitle"
-        android:textStyle="bold"
+        android:id="@+id/tvTempo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/seekBarMood"
         android:layout_marginStart="10dp"
-        android:text="Instrumentals?" />
+        android:text="Tempo?"
+        android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/tvTooLittle"
+        android:id="@+id/tvTooSlow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/seekBarInstrument"
+        android:layout_alignBottom="@id/seekBarTempo"
         android:layout_marginStart="10dp"
-        android:textSize="10dp"
-        android:text="Too Little" />
+        android:text="Too Slow"
+        android:textSize="10dp" />
     <SeekBar
-        android:id="@+id/seekBarInstrument"
+        android:id="@+id/seekBarTempo"
         android:layout_width="200dp"
-        android:layout_toEndOf="@id/tvTooLittle"
-        android:layout_below="@id/tvInstrumentalTitle"
+        android:layout_toEndOf="@id/tvTooSlow"
+        android:layout_below="@id/tvTempo"
         android:layout_height="36dp"
-        android:layout_alignBottom="@id/seekBarInstrument"
+        android:layout_alignBottom="@id/seekBarTempo"
         android:layout_marginTop="-2dp"
         android:max="2" />
 
     <TextView
-        android:id="@+id/tvTooMuch"
-        android:textSize="10dp"
+        android:id="@+id/tvTooFast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/seekBarInstrument"
-        android:layout_alignBottom="@id/seekBarInstrument"
+        android:layout_alignBottom="@id/seekBarTempo"
         android:layout_marginStart="10dp"
-        android:text="Too Much" />
+        android:layout_toEndOf="@id/seekBarTempo"
+        android:text="Too Fast"
+        android:textSize="10dp" />
 
 
 
@@ -133,7 +131,7 @@
         android:id="@+id/btnUpdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/seekBarInstrument"
+        android:layout_below="@id/seekBarTempo"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:text="Update My Playlist!" />

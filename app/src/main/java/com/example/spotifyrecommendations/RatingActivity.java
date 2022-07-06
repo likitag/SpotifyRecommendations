@@ -3,7 +3,6 @@ package com.example.spotifyrecommendations;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,9 +18,6 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
-
-import org.json.JSONException;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,10 +30,8 @@ import spotify.models.audio.AudioFeatures;
 import spotify.models.generic.AbstractPlayableObject;
 import spotify.models.playlists.PlaylistItem;
 import spotify.models.playlists.PlaylistTrack;
-import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 import spotify.models.playlists.requests.DeleteItemsPlaylistRequestBody;
 import spotify.models.recommendations.RecommendationCollection;
-import spotify.models.tracks.TrackFull;
 
 public class RatingActivity extends AppCompatActivity {
     private static final String TAG = "Rating activity";
@@ -55,12 +49,12 @@ public class RatingActivity extends AppCompatActivity {
 
 
     TextView tvMood;
-    TextView tvInstrument;
+    TextView tvTempo;
     SeekBar seekBarMood;
-    SeekBar seekBarInstrument;
+    SeekBar seekBarTempo;
 
-    TextView tvTooLittle;
-    TextView tvTooMuch;
+    TextView tvTooSlow;
+    TextView tvTooFast;
     TextView tvTooSad;
     TextView tvTooHappy;
 
@@ -68,7 +62,7 @@ public class RatingActivity extends AppCompatActivity {
     Button btnKeep;
 
     int seekMood;
-    int seekInstrument;
+    int seekTempo;
 
     List<String> listArtistId = new ArrayList<>();
     List<String> listTrackId = new ArrayList<>();
@@ -106,14 +100,14 @@ public class RatingActivity extends AppCompatActivity {
         ibDislike = findViewById(R.id.ibDislike);
 
         tvMood = findViewById(R.id.tvMood);
-        tvInstrument = findViewById(R.id.tvInstrumentalTitle);
+        tvTempo = findViewById(R.id.tvTempo);
         seekBarMood = findViewById(R.id.seekBarMood);
-        seekBarInstrument = findViewById(R.id.seekBarInstrument);
+        seekBarTempo = findViewById(R.id.seekBarTempo);
 
         tvTooHappy = findViewById(R.id.tvTooHappy);
         tvTooSad = findViewById(R.id.tvTooSad);
-        tvTooLittle = findViewById(R.id.tvTooLittle);
-        tvTooMuch = findViewById(R.id.tvTooMuch);
+        tvTooSlow = findViewById(R.id.tvTooSlow);
+        tvTooFast = findViewById(R.id.tvTooFast);
 
         btnUpdate = findViewById(R.id.btnUpdate);
         btnKeep = findViewById(R.id.btnKeep);
@@ -124,15 +118,8 @@ public class RatingActivity extends AppCompatActivity {
 
                 seekMood = seekBarMood.getProgress();
                 Log.i(TAG, "onClick: " + seekMood);
-                seekInstrument = seekBarInstrument.getProgress();
+                seekTempo = seekBarTempo.getProgress();
                 new updatePlaylistItems().execute();
-
-
-
-
-
-
-
 
             }
         });
@@ -206,6 +193,21 @@ public class RatingActivity extends AppCompatActivity {
             Log.i(TAG, "initial num songs: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
             List<PlaylistTrack> tracks = spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems();
 
+            //TODO: get the current average tempo of the playlist
+
+            //TODO: get current average tempo
+
+            float sum_tempo = 0;
+            for (int i = 0; i < tracks.size(); i++){
+                AbstractPlayableObject track = tracks.get(i).getTrack();
+                String trackId = track.getId();
+                AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
+                sum_tempo = sum_tempo + audioFeatures.getTempo();
+            }
+
+            float avg_tempo = sum_tempo / tracks.size();
+            Log.i(TAG, "initial playlist avg tempo: " + avg_tempo);
+
             for (int i = 0; i < tracks.size(); i++){
 
                 AbstractPlayableObject track = tracks.get(i).getTrack();
@@ -218,8 +220,18 @@ public class RatingActivity extends AppCompatActivity {
                 AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
 
                 //indicates the instrumentalness of a track (0.5 and above is intrumental)
-//                float instrumentalness = audioFeatures.getInstrumentalness();
-//                Log.i(TAG, "instrumentalness: " + instrumentalness);
+                float tempo = audioFeatures.getTempo();
+                Log.i(TAG, "tempo: " + tempo);
+
+                //TODO: remove all songs that are less than / greater than average tempo
+
+                if ((seekTempo == 0 && tempo < avg_tempo) || (seekTempo == 2 && tempo > avg_tempo)){
+
+                    //deletes a song from playlist if it doesn't satisfy mood requirements
+                    items_to_delete.add(item);
+                    Log.i(TAG, "wish to delete: " + item.getUri());
+                    num_deleted++;
+                }
 
                 //indicates the happiness of a track (0 = sad, 1= happy)
                 float valence = audioFeatures.getValence();
@@ -244,7 +256,7 @@ public class RatingActivity extends AppCompatActivity {
             Log.i(TAG, "num songs after deleting: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
 
 
-            //TODO: take the num_deleted value, and add the same number of new tracks to the playlist, based on the reviews that the user gave
+
             Map<String, String> rec_extra = new HashMap<>();
             if (seekMood == 0){
                 rec_extra.put("min_valence", "0.3");
@@ -253,6 +265,16 @@ public class RatingActivity extends AppCompatActivity {
                 rec_extra.put("max_valence", "0.7");
             }
 
+
+            if (seekTempo == 0){
+                rec_extra.put("min_tempo", Float.toString(avg_tempo + 10));
+            }
+            else if (seekTempo == 2){
+                rec_extra.put("max_tempo", Float.toString(avg_tempo - 10));
+            }
+
+
+
             if (num_deleted !=0) {
 
                 rec_extra.put("limit", Integer.toString(num_deleted));
@@ -260,6 +282,8 @@ public class RatingActivity extends AppCompatActivity {
                 Log.i(TAG, "artist:  " + listArtistId.get(0));
                 Log.i(TAG, "track:  " + listTrackId.get(0));
                 Log.i(TAG, "genre:  " + listGenres.get(0));
+
+                //TODO: get song recommendations that are +10/-10 greater than the average tempo based on if the user thought it was too fast/too slow
                 RecommendationCollection recommendations = spotifyApi.getRecommendations(listArtistId, listGenres, listTrackId, rec_extra);
 
                 List<String> uris = new ArrayList<>();
@@ -279,6 +303,21 @@ public class RatingActivity extends AppCompatActivity {
                 Log.i(TAG, "no songs to delete");
 
             }
+
+            List<PlaylistTrack> tracks2 = spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems();
+
+            float sum_tempo2 = 0;
+            for (int i = 0; i < tracks2.size(); i++){
+                AbstractPlayableObject track = tracks2.get(i).getTrack();
+                String trackId = track.getId();
+                AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
+                sum_tempo2 = sum_tempo2 + audioFeatures.getTempo();
+            }
+
+
+
+            float avg_tempo2 = sum_tempo2 / tracks.size();
+            Log.i(TAG, "final playlist avg tempo: " + avg_tempo2);
 
             
             
