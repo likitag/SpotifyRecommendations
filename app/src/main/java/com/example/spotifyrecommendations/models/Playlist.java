@@ -18,7 +18,7 @@ public class Playlist extends ParseObject implements Serializable {
     public static final String KEY_SPOTIFYID = "SpotifyId";
     public static final String KEY_NAME = "Name";
     public static final String KEY_URI = "URI";
-    public static final String KEY_OBJECT_ID = "ObjectId";
+    public static final String KEY_OBJECT_ID = "objectId";
 
 
 

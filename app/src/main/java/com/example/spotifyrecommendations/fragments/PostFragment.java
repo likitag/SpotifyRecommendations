@@ -194,6 +194,7 @@ public class PostFragment extends Fragment {
         post.setUser(currentUser);
         post.setPlaylist(Playlist);
         post.setPlaylistURI(Playlist.getURI());
+        post.setPlaylistID(Playlist.getObjectId());
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {

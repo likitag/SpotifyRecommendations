@@ -62,4 +62,53 @@
         android:hint="Give your playist a name"
         android:inputType="textMultiLine" />
 
+<!--    <SearchView-->
+<!--        android:id="@+id/search"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/btnSubmit"-->
+<!--        android:queryHint="choose a track">-->
+
+<!--    </SearchView>-->
+
+<!--    <SearchView-->
+<!--        android:id="@+id/searchArtists"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/search"-->
+<!--        android:queryHint="choose an artist">-->
+
+
+<!--    </SearchView>-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btnFindArtist"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_toEndOf="@id/etArtists"-->
+<!--        android:layout_alignBottom="@id/etArtists"-->
+<!--        android:text="Find Artist" />-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btnFindTrack"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_toEndOf="@id/etTracks"-->
+<!--        android:layout_alignBottom="@id/etTracks"-->
+<!--        android:text="Find Track" />-->
+
+<!--    <ListView-->
+<!--        android:id="@+id/listviewArtists"-->
+<!--        android:layout_width="fill_parent"-->
+<!--        android:layout_height="fill_parent"-->
+<!--        android:layout_below="@+id/etArtists" />-->
+
+<!--    <ListView-->
+<!--        android:id="@+id/listview"-->
+<!--        android:layout_width="fill_parent"-->
+<!--        android:layout_height="fill_parent"-->
+<!--        android:layout_below="@+id/etTracks" >-->
+
+<!--    </ListView>-->
+
 </RelativeLayout>

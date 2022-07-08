@@ -6,39 +6,46 @@
     android:layout_height="match_parent"
     tools:context=".RatingActivity">
 
-    <ImageButton
-        android:id="@+id/ibLike"
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="false"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="100dp"
-        app:srcCompat="@drawable/ic_baseline_check_circle_24" />
+        android:layout_centerInParent="true" /> //to make it appear in the middle of screen
 
-    <ImageButton
-        android:id="@+id/ibDislike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginStart="100dp"
-        android:layout_toEndOf="@id/ibLike"
-        app:srcCompat="@drawable/ic_baseline_cancel_24" />
+<!--    <ImageButton-->
+<!--        android:id="@+id/ibLike"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerInParent="false"-->
+<!--        android:layout_centerVertical="true"-->
+<!--        android:layout_marginStart="100dp"-->
+<!--        app:srcCompat="@drawable/ic_baseline_check_circle_24" />-->
 
-    <TextView
-        android:id="@+id/tvLike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/ibLike"
-        android:layout_alignStart="@id/ibLike"
-        android:text="Like" />
+<!--    <ImageButton-->
+<!--        android:id="@+id/ibDislike"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerInParent="true"-->
+<!--        android:layout_marginStart="100dp"-->
+<!--        android:layout_toEndOf="@id/ibLike"-->
+<!--        app:srcCompat="@drawable/ic_baseline_cancel_24" />-->
 
-    <TextView
-        android:id="@+id/tvDislike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/ibDislike"
-        android:layout_alignStart="@id/ibDislike"
-        android:text="Dislike" />
+<!--    <TextView-->
+<!--        android:id="@+id/tvLike"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_above="@id/ibLike"-->
+<!--        android:layout_alignStart="@id/ibLike"-->
+<!--        android:text="Like" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/tvDislike"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_above="@id/ibDislike"-->
+<!--        android:layout_alignStart="@id/ibDislike"-->
+<!--        android:text="Dislike" />-->
 
     <TextView
         android:id="@+id/tvTitle"
@@ -143,7 +150,7 @@
         android:layout_below="@id/btnUpdate"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="Save this Playlist!" />
+        android:text="Keep this Playlist!" />
 
 
 

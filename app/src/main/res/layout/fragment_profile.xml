@@ -23,11 +23,21 @@
         android:text="My Playlists:"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/tvSavedPlaylists"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvUsername"
+        android:layout_marginStart="150dp"
+        android:layout_toEndOf="@id/tvMyPlaylists"
+        android:text="Saved Playlists:"
+        android:textStyle="bold" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSaved"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tvMyPlaylists"
+        android:layout_below="@id/tvSavedPlaylists"
         android:layout_toEndOf="@id/rvPlaylists"
         android:padding="8dp" />
 

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +47,7 @@ public class RatingActivity extends AppCompatActivity {
     Playlist playlist;
 
     String spotify_playlist_id;
+    ProgressBar pb;
 
 
     TextView tvMood;
@@ -94,10 +96,13 @@ public class RatingActivity extends AppCompatActivity {
 
 
         }
-        tvLike = findViewById(R.id.tvLike);
-        tvDislike = findViewById(R.id.tvDislike);
-        ibLike = findViewById(R.id.ibLike);
-        ibDislike = findViewById(R.id.ibDislike);
+//        tvLike = findViewById(R.id.tvLike);
+//        tvDislike = findViewById(R.id.tvDislike);
+//        ibLike = findViewById(R.id.ibLike);
+//        ibDislike = findViewById(R.id.ibDislike);
+        pb = findViewById(R.id.progress);
+        pb.setVisibility(View.INVISIBLE);
+
 
         tvMood = findViewById(R.id.tvMood);
         tvTempo = findViewById(R.id.tvTempo);
@@ -112,6 +117,15 @@ public class RatingActivity extends AppCompatActivity {
         btnUpdate = findViewById(R.id.btnUpdate);
         btnKeep = findViewById(R.id.btnKeep);
 
+        btnKeep.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(RatingActivity.this, "added", Toast.LENGTH_SHORT).show();
+                RatingActivity.this.finish();
+            }
+        });
+
+
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,61 +138,61 @@ public class RatingActivity extends AppCompatActivity {
             }
         });
 
-        ibLike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(RatingActivity.this, "User likes playlist!", Toast.LENGTH_SHORT).show();
-//                playlist.setLike(true);
-//                playlist.saveInBackground();
-                updatePlaylist(true);
-                finish();
-
-                //TODO: create functionality for if user liked the playlist
-            }
-        });
-
-
-
-        ibDislike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(RatingActivity.this, "User dislikes playlist", Toast.LENGTH_SHORT).show();
-                updatePlaylist(false);
-                finish();
-                //TODO: create functionality for if user disliked the playlist
-            }
-        });
-
-    }
-
-
-    private void updatePlaylist(Boolean like)  {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
-        Log.i(TAG, query.getClassName());
-
-        Log.i(TAG, "playlist id " + playlist_id);
-
-        query.getInBackground(playlist_id, new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                if (e == null) {
-                    Log.i(TAG, "here!");
-                    object.put("Like", like);
-                    object.saveInBackground();
-                } else {
-                    Log.i(TAG, "sad");
-                    Log.e(TAG, "something went wrong...", e);
-                }
-
-            }
-        });
+//        ibLike.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(RatingActivity.this, "User likes playlist!", Toast.LENGTH_SHORT).show();
+////                playlist.setLike(true);
+////                playlist.saveInBackground();
+//                updatePlaylist(true);
+//                finish();
+//
+//                //TODO: create functionality for if user liked the playlist
+//            }
+//        });
+//
+//
+//
+//        ibDislike.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(RatingActivity.this, "User dislikes playlist", Toast.LENGTH_SHORT).show();
+//                updatePlaylist(false);
+//                finish();
+//                //TODO: create functionality for if user disliked the playlist
+//            }
+//        });
+//
+//    }
 
 
-
-        Log.i(TAG, "done updating");
-
-
-
+//    private void updatePlaylist(Boolean like)  {
+//        ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
+//        Log.i(TAG, query.getClassName());
+//
+//        Log.i(TAG, "playlist id " + playlist_id);
+//
+//        query.getInBackground(playlist_id, new GetCallback<ParseObject>() {
+//            @Override
+//            public void done(ParseObject object, ParseException e) {
+//                if (e == null) {
+//                    Log.i(TAG, "here!");
+//                    object.put("Like", like);
+//                    object.saveInBackground();
+//                } else {
+//                    Log.i(TAG, "sad");
+//                    Log.e(TAG, "something went wrong...", e);
+//                }
+//
+//            }
+//        });
+//
+//
+//
+//        Log.i(TAG, "done updating");
+//
+//
+//
     }
 
     private class updatePlaylistItems extends AsyncTask<URL, Integer, Long> {
@@ -314,39 +328,29 @@ public class RatingActivity extends AppCompatActivity {
                 sum_tempo2 = sum_tempo2 + audioFeatures.getTempo();
             }
 
-
-
             float avg_tempo2 = sum_tempo2 / tracks.size();
             Log.i(TAG, "final playlist avg tempo: " + avg_tempo2);
-
-            
-            
-
-
-
             return null;
+
         }
         @Override
         protected void onPostExecute(Long aLong) {
            // Log.i(TAG, "done removing songs from playlist" );
             Toast.makeText(RatingActivity.this, "done updating!", Toast.LENGTH_SHORT).show();
+            RatingActivity.this.finish();
 
-           
-
-
-
-
-
-
-        }
+ }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
+            pb.setVisibility(View.VISIBLE);
+
 
 
 
         }
+
     }
 
 }

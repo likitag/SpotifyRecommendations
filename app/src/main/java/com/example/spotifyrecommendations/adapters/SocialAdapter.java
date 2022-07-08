@@ -22,6 +22,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Post;
 
 import com.parse.GetCallback;
@@ -35,6 +36,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.List;
+
+
 
 public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder> {
     private static final String TAG = "Social Adapter";
@@ -130,13 +133,13 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                 @Override
                 public void onAnimationStart(Animator animation) {
                     unlike.setVisibility(View.VISIBLE);
-                    Toast.makeText(context, "animating...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, "animating...", Toast.LENGTH_SHORT).show();
 
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    Toast.makeText(context, " done animating...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, " done animating...", Toast.LENGTH_SHORT).show();
                     unlike.setVisibility(View.GONE);
 
                 }
@@ -184,6 +187,44 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                 GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
 
                     @Override
+                    public void onLongPress(MotionEvent e) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+
+                           Post post = posts.get(position);
+
+                            Log.i(TAG, "onLongPress: " + CustomUser.KEY_SAVED);
+
+
+                            try {
+                                int ind = check_liked(post.getPlaylistID(), user, CustomUser.KEY_SAVED);
+                                if (ind == -1){
+
+                                    user.add(CustomUser.KEY_SAVED, post.getPlaylistID());
+                                    Toast.makeText(context, "saving", Toast.LENGTH_SHORT).show();
+                                    user.saveInBackground();
+
+                                }
+                                else {
+                                    JSONArray currSaved = user.getJSONArray("saved");
+                                    currSaved.remove(ind);
+                                    Toast.makeText(context, "unsaving", Toast.LENGTH_SHORT).show();
+                                    user.put(CustomUser.KEY_SAVED, currSaved);
+                                    user.saveInBackground();
+
+
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+
+                        }
+                        super.onLongPress(e);
+                        //Toast.makeText(context, "long press", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
                     public boolean onDoubleTap(MotionEvent e) {
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
@@ -195,11 +236,16 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                             try {
                                 //if not currently liked:
                                 ibLikePost.setImageResource(R.drawable.ic_heart_full);
-                                int ind = check_liked(post.getObjectId(), user);
+                                int ind = check_liked(post.getObjectId(), user, CustomUser.KEY_FAVORITES);
                                 if (ind == -1){
                                     like.setVisibility(View.VISIBLE);
                                     like.playAnimation();
                                     updatePostLikes(1, post.getObjectId());
+
+
+
+
+
                                     user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
                                     user.saveInBackground();
 
@@ -224,7 +270,7 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                             }
 
                         }
-                        Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
                         return true;
                     }
                 });
@@ -266,10 +312,10 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
         }
 
-        public Integer check_liked(String post_id, ParseUser user) throws JSONException {
+        public Integer check_liked(String id, ParseUser user, String key) throws JSONException {
 
-            for (int i = 0; i< user.getJSONArray(CustomUser.KEY_FAVORITES).length(); i++){
-                if (user.getJSONArray(CustomUser.KEY_FAVORITES).get(i).equals(post_id)){
+            for (int i = 0; i< user.getJSONArray(key).length(); i++){
+                if (user.getJSONArray(key).get(i).equals(id)){
                     return i;
 
                 }
@@ -289,7 +335,7 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             tvLikeNum.setText(post.getLikes() + " likes");
 
             try {
-                if (check_liked(post.getObjectId(), ParseUser.getCurrentUser()) == -1){
+                if (check_liked(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_FAVORITES) == -1){
                     ibLikePost.setImageResource(R.drawable.ic_heart_empty);
                 }
                 else {
@@ -326,38 +372,13 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
         @Override
         public void onClick(View v) {
-            int position = getAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) {
-
-                // get the movie at the position, this won't work if the class is static
-                Post post = posts.get(position);
-
-
-//                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
-//                try {
-//                    spotify_app.setData(Uri.parse(post.getPlaylist().fetch().getString("URI")));
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-
-//                Intent profile = new Intent(context, MainActivity.class);
-////                profile.putExtra("playlist id", playlistId);
-////                profile.putExtra("token", token);
-//
-//                TaskStackBuilder.create(context)
-//                        .addNextIntent(profile)
-//                        // use this method if you want "intentOnTop" to have it's parent chain of activities added to the stack. Otherwise, more "addNextIntent" calls will do.
-//                        .addNextIntentWithParentStack( spotify_app )
-//                        .startActivities();
-
-//                Intent i = new Intent(Intent.ACTION_VIEW);
-//                i.setData(Uri.parse(post.getPlaylist().get("URI").toString()));
-//                context.startActivity(i);
 
         }
-    }
 
 
-} }
+}
+
+
+}
 
 

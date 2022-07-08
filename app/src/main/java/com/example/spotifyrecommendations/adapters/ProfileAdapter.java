@@ -31,6 +31,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
 
 
+
     public ProfileAdapter(Context context, List<Playlist> playlists) {
         this.context = context;
         this.playlists = playlists;

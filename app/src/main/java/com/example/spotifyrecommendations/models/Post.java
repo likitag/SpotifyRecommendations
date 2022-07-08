@@ -15,6 +15,7 @@ public class Post extends ParseObject {
     public static final String KEY_SAVES = "Saves";
     public static final String KEY_PLAYLIST = "Playlist";
     public static final String KEY_PLAYLISTURI = "PlaylistURI";
+    public static final String KEY_PLAYLISTID = "PlaylistID";
 
 
 
@@ -50,6 +51,14 @@ public class Post extends ParseObject {
 
     public void setPlaylistURI(String uri){
         put(KEY_PLAYLISTURI, uri);
+    }
+
+    public String getPlaylistID(){
+        return getString(KEY_PLAYLISTID);
+    }
+
+    public void setPlaylistID(String id){
+        put(KEY_PLAYLISTID, id);
     }
 
 

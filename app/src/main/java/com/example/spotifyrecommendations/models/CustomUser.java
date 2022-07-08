@@ -17,6 +17,7 @@ public class CustomUser implements Serializable {
 
     public static final String KEY_USER = "User";
     public static final String KEY_FAVORITES = "favorites";
+    public static final String KEY_SAVED = "saved";
 
     ParseUser user;
 
@@ -24,6 +25,14 @@ public class CustomUser implements Serializable {
 
     public JSONArray getFavorites(){
         return user.getJSONArray(KEY_FAVORITES);
+    }
+
+    public JSONArray getSaved(){
+        return user.getJSONArray(KEY_SAVED);
+    }
+
+    public void setSaved(JSONArray saved){
+        user.put(KEY_SAVED, saved);
     }
 
 

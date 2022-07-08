@@ -21,6 +21,7 @@ import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.adapters.ProfileAdapter;
 import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -32,12 +33,16 @@ import org.json.JSONException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import spotify.api.spotify.SpotifyApi;
 
+//TODO: jsonArray of favorties is currently hodling lpost object ids rather than playlist object ids. Need to add another field for liked playlists
 
 public class ProfileFragment extends Fragment {
+    private static final String TAG = "ProfileFrg";
     private RecyclerView rvPlaylists;
     private RecyclerView rvSaved;
     private TextView tvUsername;
@@ -77,12 +82,6 @@ public class ProfileFragment extends Fragment {
 
         rvSaved = view.findViewById(R.id.rvSaved);
         rvSaved.setLayoutManager(new LinearLayoutManager(getContext()));
-
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvPlaylists.getContext(), DividerItemDecoration.HORIZONTAL);
-//        rvPlaylists.addItemDecoration(dividerItemDecoration);
-
-
-
         MyPlaylists = new ArrayList<>();
         adapter = new ProfileAdapter(getContext(), MyPlaylists);
 
@@ -94,7 +93,7 @@ public class ProfileFragment extends Fragment {
 
         queryPlaylists();
         try {
-            queryPlaylists2();
+            queryPlaylists3();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -110,7 +109,7 @@ public class ProfileFragment extends Fragment {
             currentUser = ParseUser.getCurrentUser();
 
         }
-//        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
 //        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 //            @Override
 //            public void onRefresh() {
@@ -159,73 +158,28 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void queryPlaylists2() throws JSONException {
-        // specify what type of data we want to query - Post.class
+    private void queryPlaylists3() throws JSONException {
         ParseUser user = ParseUser.getCurrentUser();
-      //  JSONArray faves = (JSONArray) user.get(CustomUser.KEY_FAVORITES);
-
-
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
 
-        //query.whereContainedIn(Playlist.KEY_OBJECT_ID, (Collection<?>) user.getJSONArray(CustomUser.KEY_FAVORITES));
+        for (int i = 0; i < user.getJSONArray(CustomUser.KEY_SAVED).length(); i++){
 
-        for (int i = 0; i < user.getJSONArray(CustomUser.KEY_FAVORITES).length(); i++){
-            query.whereEqualTo(Playlist.KEY_OBJECT_ID, user.getJSONArray(CustomUser.KEY_FAVORITES).get(i));
-
-        }
-
-        query.addDescendingOrder("createdAt");
+            query.whereEqualTo(Playlist.KEY_OBJECT_ID, user.getJSONArray(CustomUser.KEY_SAVED).get(i));
 
 
-        // start an asynchronous call for posts
-        query.findInBackground(new FindCallback<Playlist>() {
-            @Override
-            public void done(List<Playlist> playlists, ParseException e) {
-                // check for errors
-                if (e != null) {
-                    Log.e("TAG", "Issue with getting playlists", e);
-                    return;
+            query.findInBackground(new FindCallback<Playlist>() {
+                @Override
+                public void done(List<Playlist> playlists, ParseException e) {
+                    // check for errors
+                    if (e != null) {
+                        Log.e("TAG", "Issue with getting posts", e);
+                        return;
+                    }
+
+                    SavedPlaylists.addAll(playlists);
+                    adapter2.notifyDataSetChanged();
                 }
-
-                // for debugging purposes let's print every post description to logcat
-
-
-                // save received posts to list and notify adapter of new data
-
-
-                SavedPlaylists.addAll(playlists);
-                adapter2.notifyDataSetChanged();
-            }
-        });
-    }
-
-    private class Task extends AsyncTask<URL, Integer, Long> {
-
-        @Override
-        protected Long doInBackground(URL... urls) {
-
-            SpotifyApi spotifyApi = new SpotifyApi(token);
-
-
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Long aLong) {
-
-
-
+            });
         }
 
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-
-
-
-
-        }
-
-
-
-
-
-} }
+    } }
