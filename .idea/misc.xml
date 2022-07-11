@@ -8,11 +8,13 @@
         <entry key="app/src/main/res/drawable/ic_heart_empty.xml" value="0.2965" />
         <entry key="app/src/main/res/drawable/vector_compose_fab.xml" value="0.2965" />
         <entry key="app/src/main/res/layout/activity_generate_playlist.xml" value="0.3125" />
+        <entry key="app/src/main/res/layout/activity_group_chat.xml" value="0.3070652173913043" />
         <entry key="app/src/main/res/layout/activity_loading.xml" value="0.2898550724637681" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.2776268115942029" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2776268115942029" />
         <entry key="app/src/main/res/layout/activity_playlist.xml" value="0.3029891304347826" />
         <entry key="app/src/main/res/layout/activity_rating.xml" value="0.3328125" />
+        <entry key="app/src/main/res/layout/app_bar_layout.xml" value="0.3070652173913043" />
         <entry key="app/src/main/res/layout/fragment_compose.xml" value="0.3125" />
         <entry key="app/src/main/res/layout/fragment_groups.xml" value="0.3070652173913043" />
         <entry key="app/src/main/res/layout/fragment_post.xml" value="0.2871376811594203" />

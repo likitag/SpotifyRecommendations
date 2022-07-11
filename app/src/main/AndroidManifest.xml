@@ -17,17 +17,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SpotifyRecommendations"
         tools:targetApi="31">
-
-
         <activity
-            android:name="com.example.spotifyrecommendations.RatingActivity"
-
-            >
+            android:name=".GroupChatActivity"
+            android:exported="false" />
+        <activity android:name=".RatingActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.spotifyrecommendations.MainActivity" />
         </activity>
-
         <activity
             android:name=".PlaylistActivity"
             android:exported="false" />
@@ -47,7 +44,5 @@
             </intent-filter>
         </activity>
     </application>
-
-
 
 </manifest>

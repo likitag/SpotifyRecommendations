@@ -3,6 +3,7 @@ package com.example.spotifyrecommendations;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     final FragmentManager fragmentManager = getSupportFragmentManager();
     FirebaseAuth auth;
     DatabaseReference reference;
+//    private Toolbar mToolbar;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -144,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        mToolbar = (Toolbar) findViewById(R.id.main_page_toolbar);
 
         auth = FirebaseAuth.getInstance();
         reference = FirebaseDatabase.getInstance().getReference();

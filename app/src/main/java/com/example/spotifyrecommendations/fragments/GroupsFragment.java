@@ -1,5 +1,6 @@
 package com.example.spotifyrecommendations.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,9 +10,11 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.example.spotifyrecommendations.GroupChatActivity;
 import com.example.spotifyrecommendations.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -51,6 +54,18 @@ public class GroupsFragment extends Fragment {
         groupRef = FirebaseDatabase.getInstance().getReference().child("Groups");
         
         getGroups();
+
+        list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String curr_group_name = parent.getItemAtPosition(position).toString();
+
+                Intent gc_intent = new Intent(getContext(), GroupChatActivity.class);
+                gc_intent.putExtra("group name", curr_group_name);
+                startActivity(gc_intent);
+
+            }
+        });
 
     }
 
