@@ -1,25 +1,33 @@
 package com.example.spotifyrecommendations;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.spotifyrecommendations.fragments.ComposeFragment;
+import com.example.spotifyrecommendations.fragments.GroupsFragment;
 import com.example.spotifyrecommendations.fragments.PostFragment;
 import com.example.spotifyrecommendations.fragments.ProfileFragment;
 import com.example.spotifyrecommendations.fragments.SocialFragment;
 import com.example.spotifyrecommendations.models.Playlist;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -63,7 +71,73 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             return true;
         }
+
+        if(item.getItemId() == R.id.new_gc){
+
+            RequestNewGroup();
+
+        }
+
+        if(item.getItemId() == R.id.my_gc){
+            Fragment newFragment = new GroupsFragment();
+           // fragmentManager.beginTransaction();
+            fragmentManager.beginTransaction().replace(R.id.flContainer, newFragment).commit();
+
+        }
         return true;
+    }
+
+    private void RequestNewGroup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("enter group name");
+        final EditText groupNameField = new EditText(MainActivity.this);
+        groupNameField.setHint("e.g. group chat name");
+        builder.setView(groupNameField);
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String groupName = groupNameField.getText().toString();
+                if (TextUtils.isEmpty(groupName)){
+                    Toast.makeText(MainActivity.this, "please enter a name", Toast.LENGTH_SHORT).show();
+
+                }
+                else {
+
+                    createNewGroup(groupName);
+
+                }
+
+
+            }
+        });
+
+        builder.setNegativeButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+
+            }
+        });
+
+        builder.show();
+    }
+
+    private void createNewGroup(String groupName) {
+        reference.child("Groups").child(groupName).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(MainActivity.this, "successfully created gc", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "failure creating gc", Toast.LENGTH_SHORT).show();
+
+                }
+
+            }
+        });
+
     }
 
     @Override
@@ -72,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         auth = FirebaseAuth.getInstance();
+        reference = FirebaseDatabase.getInstance().getReference();
         logout = findViewById(R.id.action_logout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         Intent i2 = getIntent();

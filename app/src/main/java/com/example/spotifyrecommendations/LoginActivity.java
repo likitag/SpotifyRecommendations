@@ -217,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
                 Log.i(TAG, "logging in old user");
-                goMainActivity();
+               // goMainActivity();
 
 
             }

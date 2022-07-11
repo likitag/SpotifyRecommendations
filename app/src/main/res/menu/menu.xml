@@ -11,6 +11,12 @@
         android:title="@string/logout"
         android:orderInCategory="100"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/new_gc"
+        android:title="create new groupchat" />
+    <item
+        android:id="@+id/my_gc"
+        android:title="My groupchats" />
 
 
 </menu>
