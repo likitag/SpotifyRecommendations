@@ -18,6 +18,8 @@ import com.example.spotifyrecommendations.fragments.ProfileFragment;
 import com.example.spotifyrecommendations.fragments.SocialFragment;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     String username;
     MenuItem logout;
     final FragmentManager fragmentManager = getSupportFragmentManager();
+    FirebaseAuth auth;
+    DatabaseReference reference;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -66,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        auth = FirebaseAuth.getInstance();
         logout = findViewById(R.id.action_logout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         Intent i2 = getIntent();

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "218263121501",
+    "project_id": "groupchat-bbc71",
+    "storage_bucket": "groupchat-bbc71.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218263121501:android:f8ce89a218326d19f127b4",
+        "android_client_info": {
+          "package_name": "com.example.spotifyrecommendations"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "218263121501-cpq2pe774edfu37samvtufmml19h57sh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.spotifyrecommendations",
+            "certificate_hash": "ecd989d5a7504dbd95e4140d4740364fb49ba93d"
+          }
+        },
+        {
+          "client_id": "218263121501-vgisgapmkrmk6kvi7cgaofkrnc8e120a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBic0heV5YS0Bjmj49TroYAXJxq16dQOps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "218263121501-vgisgapmkrmk6kvi7cgaofkrnc8e120a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

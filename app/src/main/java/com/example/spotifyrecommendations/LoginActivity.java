@@ -1,5 +1,6 @@
 package com.example.spotifyrecommendations;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -10,6 +11,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -36,6 +43,9 @@ public class LoginActivity extends AppCompatActivity {
     String token;
     String username;
     String password;
+    private FirebaseAuth mAuth;
+    private DatabaseReference RootRef;
+
 
 
 
@@ -43,6 +53,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mAuth = FirebaseAuth.getInstance();
+        RootRef = FirebaseDatabase.getInstance().getReference();
         btnLogin = findViewById(R.id.btnLogin);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,16 +160,70 @@ public class LoginActivity extends AppCompatActivity {
                 if (e!=null ){
                     //if there is no Parse User that exists with these credentials, we will create a sign up as a new Parse User using these credentials
                     signUp(username, password);
+                    String email = username + "@gmail.com";
+                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()){
+                                Log.i(TAG, "successfully created firebase user: ");
+                                Toast.makeText(LoginActivity.this, "successfully created firebase user", Toast.LENGTH_SHORT).show();
+
+                            }
+                            else{
+                                String message = task.getException().toString();
+                                Toast.makeText(LoginActivity.this, "error login firebase: " + message, Toast.LENGTH_SHORT).show();
+                                Log.i(TAG, "error creating firebase user: "+ message);
+
+                            }
+
+                        }
+                    });
 
                     //Log.e("error", "issue with login", e);
                     return;
 
                 }
-                Log.i(TAG, "logging in old user");
+                String email = username + "@gmail.com";
 
+                mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(LoginActivity.this, "loggin in firebase", Toast.LENGTH_SHORT).show();
+                            goMainActivity();
+                        }
+                        else {
+                            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()){
+                                        Log.i(TAG, "successfully created firebase user: ");
+                                        Toast.makeText(LoginActivity.this, "successfully created firebase user", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                    else{
+                                        String message = task.getException().toString();
+                                        Toast.makeText(LoginActivity.this, "error login firebase: " + message, Toast.LENGTH_SHORT).show();
+                                        Log.i(TAG, "error creating firebase user: "+ message);
+
+                                    }
+
+                                }
+                            });
+
+                        }
+
+
+                    }
+                });
+                Log.i(TAG, "logging in old user");
                 goMainActivity();
+
+
             }
         });
+
+
 
 
     }
@@ -171,6 +237,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
+                    String email = username + "@gmail.com";
                     goMainActivity();
                 } else {
                     Log.e("tag", "done:", e);
@@ -179,6 +246,10 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+
+
+
+
 
 
     }
