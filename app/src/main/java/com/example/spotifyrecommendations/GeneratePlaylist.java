@@ -2,6 +2,7 @@ package com.example.spotifyrecommendations;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -9,8 +10,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.spotifyrecommendations.models.Playlist;
+import com.example.spotifyrecommendations.models.Song;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -40,6 +44,7 @@ public class GeneratePlaylist extends AppCompatActivity {
     ProgressBar pb;
     String playlistName;
     private static Playlist newPlaylist;
+    LottieAnimationView music_load;
 
     String playlist_obj_id;
 
@@ -56,7 +61,10 @@ public class GeneratePlaylist extends AppCompatActivity {
         setContentView(R.layout.activity_generate_playlist);
         Intent i2 = getIntent();
         Bundle b = i2.getExtras();
-        pb = findViewById(R.id.progress);
+      //  pb = findViewById(R.id.progress);
+        music_load = findViewById(R.id.lottie_music_load);
+        music_load.playAnimation();
+
 
 
         if(b!=null)
@@ -150,9 +158,9 @@ public class GeneratePlaylist extends AppCompatActivity {
             for (int i = 0; i<spotifyRecs.size(); i++){
                 String uri = spotifyApi.getTrack(spotifyRecs.get(i), extra).getUri();
                 uris.add(uri);
-                //String songName = spotifyApi.getTrack(spotifyRecs.get(i), options).getName();
-                //String songArtist = spotifyApi.getTrack(spotifyRecs.get(i), options).getArtists().get(0).getName();
-                //saveSong(songName, songArtist);
+                String songName = spotifyApi.getTrack(spotifyRecs.get(i), options).getName();
+                String songArtist = spotifyApi.getTrack(spotifyRecs.get(i), options).getArtists().get(0).getName();
+                saveSong(songName, songArtist);
 
 
             }
@@ -189,6 +197,7 @@ public class GeneratePlaylist extends AppCompatActivity {
             Log.i(TAG, "finished adding items to new playlist ");
             Log.i(TAG, "done creating songs");
 
+
             super.onPostExecute(aLong);
             Intent spotify_app = new Intent(Intent.ACTION_VIEW);
             spotify_app.setData(Uri.parse(playlist_uri));
@@ -215,28 +224,31 @@ public class GeneratePlaylist extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            pb.setVisibility(View.VISIBLE);
+            //pb.setVisibility(View.VISIBLE);
+            //music_load.setVisibility(View.VISIBLE);
+            Toast.makeText(GeneratePlaylist.this, "animating", Toast.LENGTH_SHORT);
+           // music_load.playAnimation();
 
 
 
         }
     }
 
-//    private void saveSong(String songName, String songArtist) {
-//        Song song = new Song();
-//        song.setName(songName);
-//        song.setArtist(songArtist);
-//        song.saveInBackground(new SaveCallback() {
-//            @Override
-//            public void done(ParseException e) {
-//                if(e!=null){
-//                    Log.e(TAG, "issue with saving song", e);
-//                    return;
-//
-//                }
-//
-//
-//            }
-//        });
-//    }
+    private void saveSong(String songName, String songArtist) {
+        Song song = new Song();
+        song.setName(songName);
+        song.setArtist(songArtist);
+        song.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e!=null){
+                    Log.e(TAG, "issue with saving song", e);
+                    return;
+
+                }
+
+
+            }
+        });
+    }
 }

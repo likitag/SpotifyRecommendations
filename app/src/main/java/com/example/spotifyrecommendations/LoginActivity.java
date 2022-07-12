@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -45,6 +48,10 @@ public class LoginActivity extends AppCompatActivity {
     String password;
     private FirebaseAuth mAuth;
     private DatabaseReference RootRef;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    LottieAnimationView music_listen;
+    LottieAnimationView notes;
 
 
 
@@ -53,9 +60,18 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = sharedPreferences.edit();
         mAuth = FirebaseAuth.getInstance();
         RootRef = FirebaseDatabase.getInstance().getReference();
         btnLogin = findViewById(R.id.btnLogin);
+        //title = findViewById(R.id.lottie_title);
+
+        music_listen = findViewById(R.id.lottie_music_listen);
+        notes = findViewById(R.id.lottie_music_notes);
+        notes.playAnimation();
+        music_listen.playAnimation();
+       // title.playAnimation();
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,6 +102,9 @@ public class LoginActivity extends AppCompatActivity {
 
                     //retrieves access token
                     token = response.getAccessToken();
+                    editor.putString("token", token);
+                    editor.apply();
+
 
                     //executes AsyncTask class
                     getUserCredentials();

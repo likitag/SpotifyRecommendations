@@ -2,7 +2,11 @@ package com.example.spotifyrecommendations.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,15 +22,25 @@ import com.example.spotifyrecommendations.R;
 import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Post;
+import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
+import spotify.api.spotify.SpotifyApi;
+import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
+
 public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHolder> {
+    private static final String TAG = "prof adapter";
     private Context context;
     private List<Playlist> playlists;
+    SharedPreferences sharedPreferences;
+    String token;
+   // String name = prefs.getString("name", "Blank Name"); //"Blank Name" the defaul
 
 
 
@@ -53,6 +67,8 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_playlist, parent, false);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        token = sharedPreferences.getString("token", "default");
         return new ViewHolder(view);
     }
 
@@ -128,6 +144,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
                 // get the movie at the position, this won't work if the class is static
                 Playlist playlist = playlists.get(position);
+                new getSongs().execute();
+
+
 
                 Intent spotify_app = new Intent(Intent.ACTION_VIEW);
                 spotify_app.setData(Uri.parse(playlist.getURI()));
@@ -144,10 +163,38 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(playlist.getURI()));
-                context.startActivity(i);
+                //context.startActivity(i);
 
 
             }
+
+
+        }
+    }
+    private class getSongs extends AsyncTask<URL, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(URL... urls) {
+            SpotifyApi spotifyApi = new SpotifyApi(token);
+            Log.i(TAG, "token: " + token);
+            Log.i(TAG, "currUser: " + spotifyApi.getCurrentUser());
+            //spotifyApi.getCurrentUser();
+
+
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Long aLong) {
+
+
+
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+
+
 
 
         }

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,6 +32,10 @@ public class GroupsFragment extends Fragment {
     private ListView list_view;
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> list_groups = new ArrayList<>();
+    private ArrayList<String> list_my_groups = new ArrayList<>();
+    private String list_type;
+    private HashSet saved_chats;
+
     private DatabaseReference groupRef;
 
     public GroupsFragment(){}
@@ -55,6 +60,16 @@ public class GroupsFragment extends Fragment {
         
         getGroups();
 
+        list_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                saved_chats.add(parent.getItemAtPosition(position).toString());
+
+                return true;
+            }
+        });
+
+
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -70,14 +85,14 @@ public class GroupsFragment extends Fragment {
     }
 
     private void getGroups() {
-        groupRef.addValueEventListener(new ValueEventListener() {
+       groupRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Set<String> set = new HashSet<>();
                 Iterator iterator = snapshot.getChildren().iterator();
                 while (iterator.hasNext()){
-                    set.add(((DataSnapshot)iterator.next()).getKey());
 
+                    set.add(((DataSnapshot)iterator.next()).getKey());
 
                 }
                 list_groups.clear();
@@ -90,8 +105,8 @@ public class GroupsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
-    }
+
+    });
 
 
-}
+} }

@@ -3,7 +3,6 @@ package com.example.spotifyrecommendations;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -80,12 +79,17 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        if(item.getItemId() == R.id.my_gc){
+        if(item.getItemId() == R.id.all_gc){
             Fragment newFragment = new GroupsFragment();
+            Bundle all_gc_bundle = new Bundle();
+
+            all_gc_bundle.putString("gc list", "all gc");
+            newFragment.setArguments(all_gc_bundle);
            // fragmentManager.beginTransaction();
             fragmentManager.beginTransaction().replace(R.id.flContainer, newFragment).commit();
 
         }
+
         return true;
     }
 

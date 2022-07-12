@@ -15,8 +15,8 @@
         android:id="@+id/new_gc"
         android:title="create new groupchat" />
     <item
-        android:id="@+id/my_gc"
-        android:title="My groupchats" />
+        android:id="@+id/all_gc"
+        android:title="All groupchats" />
 
 
 </menu>

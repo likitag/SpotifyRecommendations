@@ -2,6 +2,7 @@ package com.example.spotifyrecommendations;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -47,7 +49,7 @@ public class RatingActivity extends AppCompatActivity {
     Playlist playlist;
 
     String spotify_playlist_id;
-    ProgressBar pb;
+    LottieAnimationView music_load;
 
 
     TextView tvMood;
@@ -59,6 +61,8 @@ public class RatingActivity extends AppCompatActivity {
     TextView tvTooFast;
     TextView tvTooSad;
     TextView tvTooHappy;
+
+    TextView tvTitle;
 
     Button btnUpdate;
     Button btnKeep;
@@ -100,8 +104,7 @@ public class RatingActivity extends AppCompatActivity {
 //        tvDislike = findViewById(R.id.tvDislike);
 //        ibLike = findViewById(R.id.ibLike);
 //        ibDislike = findViewById(R.id.ibDislike);
-        pb = findViewById(R.id.progress);
-        pb.setVisibility(View.INVISIBLE);
+
 
 
         tvMood = findViewById(R.id.tvMood);
@@ -114,14 +117,41 @@ public class RatingActivity extends AppCompatActivity {
         tvTooSlow = findViewById(R.id.tvTooSlow);
         tvTooFast = findViewById(R.id.tvTooFast);
 
+        tvTitle = findViewById(R.id.tvTitle);
+
         btnUpdate = findViewById(R.id.btnUpdate);
         btnKeep = findViewById(R.id.btnKeep);
+        music_load = findViewById(R.id.lottie_music_load);
+        music_load.setVisibility(View.GONE);
 
         btnKeep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(RatingActivity.this, "added", Toast.LENGTH_SHORT).show();
                 RatingActivity.this.finish();
+            }
+        });
+
+        music_load.addAnimatorListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                music_load.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                music_load.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
             }
         });
 
@@ -133,6 +163,23 @@ public class RatingActivity extends AppCompatActivity {
                 seekMood = seekBarMood.getProgress();
                 Log.i(TAG, "onClick: " + seekMood);
                 seekTempo = seekBarTempo.getProgress();
+
+                tvMood.setVisibility(View.GONE);
+                tvTempo.setVisibility(View.GONE);
+                seekBarMood.setVisibility(View.GONE);
+                seekBarTempo.setVisibility(View.GONE);
+                tvTitle.setVisibility(View.GONE);
+
+                tvTooHappy.setVisibility(View.GONE);
+                tvTooSad.setVisibility(View.GONE);
+                tvTooSlow.setVisibility(View.GONE);
+                tvTooFast.setVisibility(View.GONE);
+
+                btnUpdate.setVisibility(View.GONE);
+                btnKeep.setVisibility(View.GONE);
+
+                music_load.setVisibility(View.VISIBLE);
+                music_load.playAnimation();
                 new updatePlaylistItems().execute();
 
             }
@@ -337,6 +384,7 @@ public class RatingActivity extends AppCompatActivity {
         protected void onPostExecute(Long aLong) {
            // Log.i(TAG, "done removing songs from playlist" );
             Toast.makeText(RatingActivity.this, "done updating!", Toast.LENGTH_SHORT).show();
+            music_load.clearAnimation();
             RatingActivity.this.finish();
 
  }
@@ -344,13 +392,18 @@ public class RatingActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            pb.setVisibility(View.VISIBLE);
 
 
 
 
         }
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            music_load.playAnimation();
+
+        }
     }
 
 }

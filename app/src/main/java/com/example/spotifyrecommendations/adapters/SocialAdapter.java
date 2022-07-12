@@ -271,6 +271,7 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
                         }
                         //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
                         return true;
                     }
                 });
