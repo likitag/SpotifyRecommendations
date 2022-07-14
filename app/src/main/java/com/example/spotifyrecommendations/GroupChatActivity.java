@@ -38,6 +38,7 @@ public class GroupChatActivity extends AppCompatActivity {
     private String currentGroupName, currentUserID, currentUsername, currentDate, currentTime;
     private FirebaseAuth mAuth;
     private DatabaseReference UsersRef, GroupNameRef, GroupMessageKeyRef;
+    private ImageButton back;
 
 
 
@@ -58,6 +59,14 @@ public class GroupChatActivity extends AppCompatActivity {
         currentUsername = ParseUser.getCurrentUser().getUsername();
         UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         GroupNameRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroupName);
+        back = findViewById(R.id.back);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GroupChatActivity.this.finish();
+            }
+        });
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override

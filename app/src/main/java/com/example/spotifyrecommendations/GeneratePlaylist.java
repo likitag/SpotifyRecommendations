@@ -30,6 +30,9 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import spotify.api.spotify.SpotifyApi;
+import spotify.models.audio.AudioFeatures;
+import spotify.models.generic.AbstractPlayableObject;
+import spotify.models.playlists.PlaylistTrack;
 import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
 public class GeneratePlaylist extends AppCompatActivity {
@@ -51,6 +54,8 @@ public class GeneratePlaylist extends AppCompatActivity {
     List<String> listArtistId = new ArrayList<>();
     List<String> listTrackId = new ArrayList<>();
     List<String> listGenres = new ArrayList<>();
+    String playlist_valence;
+    String playlist_tempo;
 
 
 
@@ -88,7 +93,7 @@ public class GeneratePlaylist extends AppCompatActivity {
 
 
 
-    private void savePlaylist(String name, int length, String spotifyId, ParseUser author, String uri) throws JSONException {
+    private void savePlaylist(String name, int length, String spotifyId, ParseUser author, String uri, String genre, String valence, String tempo) throws JSONException {
         //ParseUser currentUser = ParseUser.getCurrentUser();
 
         //JSONArray user_playlists = currentUser.getJSONArray("Playlist");
@@ -100,6 +105,9 @@ public class GeneratePlaylist extends AppCompatActivity {
         playlist.setSpotifyid(spotifyId);
         playlist.setUser(author);
         playlist.setURI(uri);
+        playlist.setGenre(genre);
+        playlist.setValence(valence);
+        playlist.setTempo(tempo);
 
 
         playlist.saveInBackground(new SaveCallback() {
@@ -117,6 +125,9 @@ public class GeneratePlaylist extends AppCompatActivity {
 
                 Intent rating = new Intent(GeneratePlaylist.this, RatingActivity.class);
                 Log.i(TAG, "passing: " + playlist_obj_id);
+
+                rating.putExtra("tempo", playlist_tempo);
+                rating.putExtra("valence", playlist_valence);
 
                 rating.putExtra("new playlist id", playlist_obj_id);
                 rating.putExtra("new playlist", (Serializable) newPlaylist);
@@ -160,7 +171,7 @@ public class GeneratePlaylist extends AppCompatActivity {
                 uris.add(uri);
                 String songName = spotifyApi.getTrack(spotifyRecs.get(i), options).getName();
                 String songArtist = spotifyApi.getTrack(spotifyRecs.get(i), options).getArtists().get(0).getName();
-                saveSong(songName, songArtist);
+                //saveSong(songName, songArtist);
 
 
             }
@@ -183,13 +194,33 @@ public class GeneratePlaylist extends AppCompatActivity {
 
             Log.i(TAG, "uri" + playlist_uri);
 
+            List<PlaylistTrack> tracks = spotifyApi.getPlaylist(playlistId, options).getTracks().getItems();
+
+            float sum_valence = 0;
+            float sum_tempo = 0;
+
+            for (int i = 0; i < tracks.size(); i++){
+                AbstractPlayableObject track = tracks.get(i).getTrack();
+                String trackId = track.getId();
+                AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
+                sum_valence = sum_valence + audioFeatures.getValence();
+                sum_tempo = sum_tempo + audioFeatures.getTempo();
+            }
+
+            playlist_valence = Float.toString(sum_valence /tracks.size());
+            playlist_tempo = Float.toString(sum_tempo / tracks.size());
+
+
+
+
+
 
             return null;
         }
         @Override
         protected void onPostExecute(Long aLong) {
             try {
-                savePlaylist(playlistName, spotifyRecs.size(), playlistId, ParseUser.getCurrentUser(), playlist_uri);
+                savePlaylist(playlistName, spotifyRecs.size(), playlistId, ParseUser.getCurrentUser(), playlist_uri, listGenres.get(0), playlist_valence, playlist_tempo);
                 Log.i(TAG, "playlist saved: " + newPlaylist);
             } catch (JSONException e) {
                 e.printStackTrace();

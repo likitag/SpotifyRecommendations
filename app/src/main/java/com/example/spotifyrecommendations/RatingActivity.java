@@ -1,10 +1,13 @@
 package com.example.spotifyrecommendations;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
+
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,16 +20,23 @@ import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.spotifyrecommendations.models.Playlist;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.audio.AudioFeatures;
@@ -61,11 +71,15 @@ public class RatingActivity extends AppCompatActivity {
     TextView tvTooFast;
     TextView tvTooSad;
     TextView tvTooHappy;
+    float avg_tempo;
+    float avg_valence;
 
     TextView tvTitle;
 
     Button btnUpdate;
     Button btnKeep;
+    float user_pref_tempo;
+    float user_pref_valence;
 
     int seekMood;
     int seekTempo;
@@ -93,6 +107,8 @@ public class RatingActivity extends AppCompatActivity {
             Log.i(TAG, playlist.getName());
             Log.i(TAG, playlist_id);
             token =(String) b.get("token");
+            avg_tempo = Float.parseFloat((String) b.get("tempo"));
+            avg_valence = Float.parseFloat((String) b.get("valence"));
 
             listArtistId = getIntent().getStringArrayListExtra("listArtists");
             listTrackId = getIntent().getStringArrayListExtra("listTracks");
@@ -100,10 +116,10 @@ public class RatingActivity extends AppCompatActivity {
 
 
         }
-//        tvLike = findViewById(R.id.tvLike);
-//        tvDislike = findViewById(R.id.tvDislike);
-//        ibLike = findViewById(R.id.ibLike);
-//        ibDislike = findViewById(R.id.ibDislike);
+        tvLike = findViewById(R.id.tvLike);
+        tvDislike = findViewById(R.id.tvDislike);
+        ibLike = findViewById(R.id.ibLike);
+        ibDislike = findViewById(R.id.ibDislike);
 
 
 
@@ -123,6 +139,13 @@ public class RatingActivity extends AppCompatActivity {
         btnKeep = findViewById(R.id.btnKeep);
         music_load = findViewById(R.id.lottie_music_load);
         music_load.setVisibility(View.GONE);
+
+        //TODO: get user preferences
+        try {
+            getUserPrefs();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         btnKeep.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,61 +208,97 @@ public class RatingActivity extends AppCompatActivity {
             }
         });
 
-//        ibLike.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(RatingActivity.this, "User likes playlist!", Toast.LENGTH_SHORT).show();
-////                playlist.setLike(true);
-////                playlist.saveInBackground();
-//                updatePlaylist(true);
-//                finish();
+        ibLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(RatingActivity.this, "User likes playlist!", Toast.LENGTH_SHORT).show();
+//                playlist.setLike(true);
+//                playlist.saveInBackground();
+                updatePlaylist(true);
+                finish();
+
+                //TODO: create functionality for if user liked the playlist
+            }
+        });
+
 //
-//                //TODO: create functionality for if user liked the playlist
-//            }
-//        });
 //
-//
-//
-//        ibDislike.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(RatingActivity.this, "User dislikes playlist", Toast.LENGTH_SHORT).show();
-//                updatePlaylist(false);
-//                finish();
-//                //TODO: create functionality for if user disliked the playlist
-//            }
-//        });
-//
-//    }
+        ibDislike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(RatingActivity.this, "User dislikes playlist", Toast.LENGTH_SHORT).show();
+                updatePlaylist(false);
+                finish();
+                //TODO: create functionality for if user disliked the playlist
+            }
+        });
 
 
-//    private void updatePlaylist(Boolean like)  {
-//        ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
-//        Log.i(TAG, query.getClassName());
-//
-//        Log.i(TAG, "playlist id " + playlist_id);
-//
-//        query.getInBackground(playlist_id, new GetCallback<ParseObject>() {
-//            @Override
-//            public void done(ParseObject object, ParseException e) {
-//                if (e == null) {
-//                    Log.i(TAG, "here!");
-//                    object.put("Like", like);
-//                    object.saveInBackground();
-//                } else {
-//                    Log.i(TAG, "sad");
-//                    Log.e(TAG, "something went wrong...", e);
-//                }
-//
-//            }
-//        });
-//
-//
-//
-//        Log.i(TAG, "done updating");
-//
-//
-//
+
+    }
+
+
+    private void getUserPrefs() throws JSONException {
+        //we will examine the users saved posts, and accordingly determine the user's preferred tempos & valences.
+
+        ParseUser user = ParseUser.getCurrentUser();
+        JSONArray currSaved = user.getJSONArray("saved");
+
+        List<String> saved_tempos = new ArrayList<>();
+        List<String> saved_valences = new ArrayList<>();
+
+        for (int i = 0; i< currSaved.length(); i++){
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
+            query.getInBackground((String) currSaved.get(i), new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    saved_valences.add((String) object.get(Playlist.KEY_VALENCE));
+                    saved_tempos.add((String) object.get(Playlist.KEY_TEMPO));
+
+                }
+            });
+
+        }
+
+        //default preferences if the user does not have any saved playlists.
+        if(saved_tempos.size()==0){
+            user_pref_tempo = 95;
+            user_pref_valence = .5F;
+        }
+
+        //we will take average of all the users saved playlist tempos & valences to determine the user's preferences
+        else {
+            float sum_valence=0;
+            float sum_tempo = 0;
+            for(int i=0; i<=saved_tempos.size(); i++){
+                sum_valence+=Float.parseFloat(saved_valences.get(i));
+                sum_tempo+=Float.parseFloat(saved_tempos.get(i));
+            }
+
+            user_pref_tempo = sum_tempo / saved_tempos.size();
+            user_pref_valence = sum_valence / saved_valences.size();
+        }
+
+
+    }
+
+
+    private void updatePlaylist(Boolean like)  {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
+        query.getInBackground(playlist_id, new GetCallback<ParseObject>() {
+            @Override
+            public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    Log.i(TAG, "here!");
+                    object.put("Like", like);
+                    object.saveInBackground();
+                } else {
+                    Log.i(TAG, "sad");
+                    Log.e(TAG, "something went wrong...", e);
+                }
+
+            }
+        });
     }
 
     private class updatePlaylistItems extends AsyncTask<URL, Integer, Long> {
@@ -251,23 +310,80 @@ public class RatingActivity extends AppCompatActivity {
         protected Long doInBackground(URL... urls) {
             SpotifyApi spotifyApi = new SpotifyApi(token);
 
-            Log.i(TAG, "initial num songs: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
+
+
             List<PlaylistTrack> tracks = spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems();
 
-            //TODO: get the current average tempo of the playlist
+            float change_factor_mood = 0F;
 
-            //TODO: get current average tempo
+            //if the user rates the playlist as too sad, but the user pref mood is lower than the playlist valence, change factor will be smaller
+            if (seekMood==0 && user_pref_valence<avg_valence){
+                change_factor_mood = .1F;
 
-            float sum_tempo = 0;
-            for (int i = 0; i < tracks.size(); i++){
-                AbstractPlayableObject track = tracks.get(i).getTrack();
-                String trackId = track.getId();
-                AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
-                sum_tempo = sum_tempo + audioFeatures.getTempo();
             }
 
-            float avg_tempo = sum_tempo / tracks.size();
-            Log.i(TAG, "initial playlist avg tempo: " + avg_tempo);
+            //if the user rates the playlist as too happy, but the user pref mood is happier than the playlist mood, change factor will be smaller
+            else if (seekMood==2 && user_pref_tempo>avg_valence){
+                change_factor_mood = (float) -0.1;
+            }
+
+            //if the user rates the playlist as too sad, but the user pref mood is happier than the playlist mood, change factor will be larger
+            else if (seekMood==0&& user_pref_tempo>avg_valence){
+                change_factor_mood = (float) .2;
+
+            }
+
+            //if the user rates the playlist as too happy, and the user pref mood is lower than the playlist mood, change factor will be larger
+            else if (seekMood==2 && user_pref_tempo<avg_valence){
+                change_factor_mood = (float) -0.2;
+            }
+
+            float new_target_valence = avg_valence + change_factor_mood;
+            if (new_target_valence < 0){
+                new_target_valence = (float) 0.1;
+            }
+            else if (new_target_valence > 1){
+                new_target_valence = (float) 0.9;
+            }
+
+
+
+
+            Log.i(TAG, "initial playlist tempo: " + avg_tempo);
+            Log.i(TAG, "initial playlist valence: " + avg_valence);
+
+
+            float change_factor_tempo = 0;
+
+            //change_factor is how much we want to change the playlist tempo by
+
+            //if the user rates the playlist as too slow, but the user pref tempo is lower than the playlist tempo, change factor will be smaller
+            if (seekTempo==0 && user_pref_tempo<avg_tempo){
+                change_factor_tempo = 5;
+
+            }
+
+            //if the user rates the playlist as too fast, but the user pref tempo is greater than the playlist tempo, change factor will be smaller
+            else if (seekTempo==2 && user_pref_tempo>avg_tempo){
+                change_factor_tempo = -5;
+            }
+
+            //if the user rates the playlist as too slow, but the user pref tempo is higher than the playlist tempo, change factor will be larger
+            else if (seekTempo==0&& user_pref_tempo>avg_tempo){
+                change_factor_tempo = 20;
+
+            }
+
+            //if the user rates the playlist as too fast, and the user pref tempo is lower than the playlist tempo, change factor will be larger
+            else if (seekTempo==2 && user_pref_tempo<avg_tempo){
+                change_factor_tempo = -20;
+
+            }
+            Log.i(TAG, "change tempo by: " + change_factor_tempo);
+
+            float new_target_tempo = avg_tempo + change_factor_tempo;
+
+            Log.i(TAG, "target tempo: " + new_target_tempo);
 
             for (int i = 0; i < tracks.size(); i++){
 
@@ -275,76 +391,70 @@ public class RatingActivity extends AppCompatActivity {
                 int[] intArray = new int[1];
                 intArray[0]= i;
                 PlaylistItem item = new PlaylistItem(track.getUri(), intArray);
-                Log.i(TAG, "item: " + item.getUri());
-
                 String trackId = track.getId();
                 AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
 
-                //indicates the instrumentalness of a track (0.5 and above is intrumental)
                 float tempo = audioFeatures.getTempo();
-                Log.i(TAG, "tempo: " + tempo);
-
-                //TODO: remove all songs that are less than / greater than average tempo
-
-                if ((seekTempo == 0 && tempo < avg_tempo) || (seekTempo == 2 && tempo > avg_tempo)){
-
-                    //deletes a song from playlist if it doesn't satisfy mood requirements
-                    items_to_delete.add(item);
-                    Log.i(TAG, "wish to delete: " + item.getUri());
-                    num_deleted++;
-                }
-
-                //indicates the happiness of a track (0 = sad, 1= happy)
                 float valence = audioFeatures.getValence();
-                Log.i(TAG, "valence: " + valence);
 
-                if ((seekMood == 0 && valence < 0.2) || (seekMood == 2 && valence > 0.8)){
-
-                    //deletes a song from playlist if it doesn't satisfy mood requirements
+                //if the user rates the playlist as too slow, and this track is slower than our target tempo, we will delete the track from the playlist
+                if(seekTempo==0 && tempo < new_target_tempo){
                     items_to_delete.add(item);
-                    Log.i(TAG, "wish to delete: " + item.getUri());
                     num_deleted++;
+
                 }
+
+                //if the user rates the playlist as too fast, and this track is faster than our target tempo, we will delete the track from the playlist
+                else if(seekTempo==2 && tempo > new_target_tempo){
+                    items_to_delete.add(item);
+                    num_deleted++;
+
+                }
+
+                else if(seekMood==0 && valence < new_target_valence){
+                    items_to_delete.add(item);
+                    num_deleted++;
+
+                }
+
+                //if the user rates the playlist as too fast, and this track is faster than our target tempo, we will delete the track from the playlist
+                else if(seekMood==2 && valence > new_target_valence){
+                    items_to_delete.add(item);
+                    num_deleted++;
+
+                }
+
             }
 
-
-            Log.i(TAG, "num items to delete: " + items_to_delete.size());
 
             DeleteItemsPlaylistRequestBody requestBody = new DeleteItemsPlaylistRequestBody(items_to_delete, spotifyApi.getPlaylist(spotify_playlist_id, options).getSnapshotId());
             
             //delete all the songs from the playlist that do not meet the user's mood expectations 
             spotifyApi.deleteItemsFromPlaylist(spotify_playlist_id, requestBody);
-            Log.i(TAG, "num songs after deleting: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
-
-
 
             Map<String, String> rec_extra = new HashMap<>();
-            if (seekMood == 0){
-                rec_extra.put("min_valence", "0.3");
-            }
-            else if (seekMood == 2){
-                rec_extra.put("max_valence", "0.7");
-            }
-
 
             if (seekTempo == 0){
-                rec_extra.put("min_tempo", Float.toString(avg_tempo + 10));
+                Log.i(TAG, "setting minimum tempo: " + new_target_tempo);
+                rec_extra.put("min_tempo", Float.toString(new_target_tempo));
             }
             else if (seekTempo == 2){
-                rec_extra.put("max_tempo", Float.toString(avg_tempo - 10));
+                Log.i(TAG, "setting maximum tempo: " + new_target_tempo);
+                rec_extra.put("max_tempo", Float.toString(new_target_tempo));
             }
 
+            if (seekMood == 0){
+                Log.i(TAG, "setting minimum valence: " + new_target_valence);
+                rec_extra.put("min_valence", Float.toString(new_target_valence));
+            }
+            else if (seekTempo == 2){
+                Log.i(TAG, "setting maximum valence: " + new_target_valence);
+                rec_extra.put("max_valence", Float.toString(new_target_valence));
+            }
 
 
             if (num_deleted !=0) {
-
                 rec_extra.put("limit", Integer.toString(num_deleted));
-
-                Log.i(TAG, "artist:  " + listArtistId.get(0));
-                Log.i(TAG, "track:  " + listTrackId.get(0));
-                Log.i(TAG, "genre:  " + listGenres.get(0));
-
-                //TODO: get song recommendations that are +10/-10 greater than the average tempo based on if the user thought it was too fast/too slow
                 RecommendationCollection recommendations = spotifyApi.getRecommendations(listArtistId, listGenres, listTrackId, rec_extra);
 
                 List<String> uris = new ArrayList<>();
@@ -352,12 +462,7 @@ public class RatingActivity extends AppCompatActivity {
                     String uri = spotifyApi.getTrack(recommendations.getTracks().get(i).getId(), options).getUri();
                     uris.add(uri);
                 }
-
-
                 spotifyApi.addItemsToPlaylist(uris, spotify_playlist_id, 0);
-
-                Log.i(TAG, "added new songs for the user");
-                Log.i(TAG, "final num songs after adding: " + spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems().size());
             }
             else {
 
@@ -367,16 +472,22 @@ public class RatingActivity extends AppCompatActivity {
 
             List<PlaylistTrack> tracks2 = spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems();
 
+
+            //calculates the overall final tempo of the playlist (for checking purposes, can remove later)
             float sum_tempo2 = 0;
+            float sum_valence2=0;
             for (int i = 0; i < tracks2.size(); i++){
                 AbstractPlayableObject track = tracks2.get(i).getTrack();
                 String trackId = track.getId();
                 AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
                 sum_tempo2 = sum_tempo2 + audioFeatures.getTempo();
+                sum_valence2 = sum_valence2 + audioFeatures.getValence();
             }
 
-            float avg_tempo2 = sum_tempo2 / tracks.size();
+            float avg_tempo2 = sum_tempo2 / tracks2.size();
+            float avg_valence2 = sum_valence2 / tracks2.size();
             Log.i(TAG, "final playlist avg tempo: " + avg_tempo2);
+            Log.i(TAG, "final playlist avg valence: " + avg_valence2);
             return null;
 
         }

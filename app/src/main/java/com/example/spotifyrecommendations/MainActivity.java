@@ -8,7 +8,11 @@ import androidx.fragment.app.FragmentManager;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -34,13 +38,22 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
+import java.io.Serializable;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import spotify.api.spotify.SpotifyApi;
+import spotify.models.artists.ArtistFull;
+import spotify.models.tracks.TrackFull;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MAIN";
@@ -51,6 +64,12 @@ public class MainActivity extends AppCompatActivity {
     final FragmentManager fragmentManager = getSupportFragmentManager();
     FirebaseAuth auth;
     DatabaseReference reference;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    List<ArtistFull> top_artists;
+    List<TrackFull> top_tracks;
+    Boolean isComplete = false;
+
 //    private Toolbar mToolbar;
 
     @Override
@@ -132,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     private void createNewGroup(String groupName) {
         reference.child("Groups").child(groupName).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                 if(task.isSuccessful()){
                     Toast.makeText(MainActivity.this, "successfully created gc", Toast.LENGTH_SHORT).show();
                 }
@@ -150,9 +169,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = sharedPreferences.edit();
+        token = sharedPreferences.getString("token", "default");
 
 //        mToolbar = (Toolbar) findViewById(R.id.main_page_toolbar);
 
+        new Task().execute();
         auth = FirebaseAuth.getInstance();
         reference = FirebaseDatabase.getInstance().getReference();
         logout = findViewById(R.id.action_logout);
@@ -160,11 +183,12 @@ public class MainActivity extends AppCompatActivity {
         Intent i2 = getIntent();
         Bundle b = i2.getExtras();
 
-        if(b!=null)
-        {
-            token =(String) b.get("token");
 
-        }
+//        if(b!=null)
+//        {
+//            token =(String) b.get("token");
+//
+//        }
 
         kaaes.spotify.webapi.android.SpotifyApi api_kaees = new kaaes.spotify.webapi.android.SpotifyApi();
         api_kaees.setAccessToken(token);
@@ -175,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
             public void success(UserPrivate userPrivate, Response response) {
                 Log.d(TAG, "success: ");
                 username = userPrivate.display_name;
+
                 
             }
 
@@ -187,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         
 
 
-        //new Task().execute();
+
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -197,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     case R.id.action_add:
+
 
                         //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
                         Bundle bundle2 = new Bundle();
@@ -236,11 +262,12 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                 }
+
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
         });
-        bottomNavigationView.setSelectedItemId(R.id.action_add);
+        bottomNavigationView.setSelectedItemId(R.id.action_social);
 
         //queryPlaylists();
 
@@ -266,23 +293,48 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    private class Task extends AsyncTask<URL, Integer, Long> {
-//
-//        @Override
-//        protected Long doInBackground(URL... urls) {
-//            SpotifyApi spotifyApi = new SpotifyApi(token);
-//            username = spotifyApi.getCurrentUser().getDisplayName();
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Long aLong) {
-//            super.onPostExecute(aLong);
-//        }
-//
-//        @Override
-//        protected void onProgressUpdate(Integer... values) {
-//            super.onProgressUpdate(values);
-//        }
-//    }
+    private class Task extends AsyncTask<URL, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(URL... urls) {
+            Map<String, String> options = new HashMap<>();
+            SpotifyApi spotifyApi = new SpotifyApi(token);
+            username = spotifyApi.getCurrentUser().getDisplayName();
+
+            top_artists = spotifyApi.getTopArtists(options).getItems();
+
+
+
+            top_tracks = spotifyApi.getTopTracks(options).getItems();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            Set<String> set_a = new HashSet<String>();
+            for (ArtistFull a: top_artists){
+                set_a.add(a.getId());
+            }
+
+            Log.i(TAG, "onPostExecute: " + set_a.size());
+
+            Set<String> set_t = new HashSet<String>();
+            for (TrackFull t: top_tracks){
+                set_t.add(t.getId());
+            }
+
+            editor.putStringSet("top artists", set_a);
+            editor.apply();
+            editor.putStringSet("top tracks", set_t);
+            editor.apply();
+            isComplete = true;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+        }
+    }
 }

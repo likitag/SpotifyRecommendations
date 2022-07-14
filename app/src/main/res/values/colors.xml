@@ -16,5 +16,9 @@
     <color name="cool">#188FCF</color>
     <color name="warm">#F1D416</color>
     <color name="transparent">#00000000</color>
+    <color name="start">#A1BAFE</color>
+    <color name="end">#8D5185</color>
+
+
 
 </resources>

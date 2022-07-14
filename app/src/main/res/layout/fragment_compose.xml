@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/start"
     tools:context=".fragments.ComposeFragment">
 
 
@@ -10,29 +11,33 @@
         android:id="@+id/etLength"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/textView"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter desired playlist length minutes"
+
+        android:hint="enter desired playlist length minutes (required)"
         android:inputType="textMultiLine" />
 
     <EditText
         android:id="@+id/etArtists"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etLength"
+        android:layout_below="@id/etTracks"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter an artist"
+
+        android:hint="enter an artist (optional)"
         android:inputType="textMultiLine" />
 
     <EditText
         android:id="@+id/etGenres"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etArtists"
+        android:layout_below="@id/etName"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter a genre"
+
+        android:hint="enter a genre (required)"
         android:inputType="textMultiLine" />
 
     <EditText
@@ -42,27 +47,40 @@
         android:layout_below="@id/etGenres"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="enter a song"
+
+        android:hint="enter a song (optional)"
         android:inputType="textMultiLine" />
 
     <Button
         android:id="@+id/btnSubmit"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etName"
+        android:layout_below="@id/etArtists"
         android:text="Generate Playlist!" />
 
     <EditText
         android:id="@+id/etName"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etTracks"
+        android:layout_below="@id/etLength"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="Give your playist a name"
+        android:hint="Give your playist a name (required)"
         android:inputType="textMultiLine" />
 
-<!--    <SearchView-->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/julius_sans_one"
+        android:gravity="center_vertical"
+        android:background="@drawable/buttons_border"
+        android:text="Enter seeds to make your personal playlist!"
+        android:textSize="30sp" />
+
+    <!--    <SearchView-->
 <!--        android:id="@+id/search"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="wrap_content"-->

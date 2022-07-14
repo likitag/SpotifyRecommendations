@@ -2,6 +2,7 @@ package com.example.spotifyrecommendations.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -10,6 +11,8 @@ import androidx.annotation.Nullable;
 
 import androidx.fragment.app.Fragment;
 
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.widget.AdapterView;
 import android.widget.SearchView;
@@ -22,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifyrecommendations.GeneratePlaylist;
@@ -52,6 +56,7 @@ public class ComposeFragment extends Fragment {
     EditText etTracks;
     Button btnSubmit;
     String token;
+    TextView textView;
     int time;
     Map<String, String> extra = new HashMap<>();
     List<String> listArtistId = new ArrayList<>();
@@ -76,6 +81,10 @@ public class ComposeFragment extends Fragment {
 
     Button btnFindTrack;
     Button btnFindArtist;
+
+    SharedPreferences sharedPreferences;
+    List<String> fave_artists = new ArrayList<>();
+    List<String> fave_tracks=new ArrayList<>();
 //
 //    SearchView editsearch;
 //    SearchView artist_search;
@@ -95,7 +104,8 @@ public class ComposeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        token = getArguments().get("token").toString();
+       // token = getArguments().get("token").toString();
+
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_compose, container, false);
@@ -112,6 +122,12 @@ public class ComposeFragment extends Fragment {
         etTracks= view.findViewById(R.id.etTracks);
         btnSubmit = view.findViewById(R.id.btnSubmit);
         etName = view.findViewById(R.id.etName);
+        textView = view.findViewById(R.id.textView);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        token = sharedPreferences.getString("token", "default");
+        fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
+        fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
 //        list = view.findViewById(R.id.listview);
        // listViewArtists = view.findViewById(R.id.listviewArtists);
 //        btnFindArtist = view.findViewById(R.id.btnFindArtist);
@@ -202,6 +218,27 @@ public class ComposeFragment extends Fragment {
                 //findArtist();
                 //findTrack();
 
+                if(TextUtils.isEmpty(etArtists.getText())){
+
+//                    int index = (int)(Math.random() * fave_artists.size());
+//                    listArtistId.add(fave_artists.get(index));
+
+                }
+
+                if(TextUtils.isEmpty(etTracks.getText())){
+//                    int index = (int)(Math.random() * fave_tracks.size());
+//                    listTrackId.add(fave_tracks.get(index));
+
+                    //TODO: get user favortites tracks
+                }
+
+                if(TextUtils.isEmpty(etGenres.getText())){
+                    //TODO: get user favortite genres
+                }
+
+
+
+
                 new Task().execute();
             }
         });
@@ -224,15 +261,33 @@ public class ComposeFragment extends Fragment {
 
             types.add(QueryType.ARTIST);
             types.add(QueryType.TRACK);
-            spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems();
 
-            track_id = spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems().get(0).getId();
+            //spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems();
 
-            artist_id = spotifyApi.searchItem(etArtists.getText().toString(), types, extra).getArtists().getItems().get(0).getId();
+            if(!TextUtils.isEmpty(etTracks.getText())) {
+                track_id = spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems().get(0).getId();
+            }
+            else {
+
+                int index = (int)(Math.random() * fave_tracks.size());
+                track_id = fave_tracks.get(index);
+
+            }
+
+
+            if(!TextUtils.isEmpty(etArtists.getText())){
+                artist_id = spotifyApi.searchItem(etArtists.getText().toString(), types, extra).getArtists().getItems().get(0).getId();
+            }
+            else{
+                int index = (int)(Math.random() * fave_tracks.size());
+                artist_id = fave_artists.get(index);
+
+            }
 
             listArtistId.add(artist_id);
 
             listTrackId.add(track_id);
+
 
             listGenres.add(etGenres.getText().toString());
 
@@ -255,8 +310,6 @@ public class ComposeFragment extends Fragment {
 
             for (int i = 0; i < recommendations.getTracks().size(); i++) {
                 rectrackIds.add( recommendations.getTracks().get(i).getId());
-
-
             }
 
 

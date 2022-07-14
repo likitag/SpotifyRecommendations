@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.example.spotifyrecommendations.models.Post;
 import com.example.spotifyrecommendations.R;
@@ -34,6 +35,7 @@ public class SocialFragment extends Fragment {
     protected SocialAdapter adapter;
     protected List<Post> allPosts;
     private SwipeRefreshLayout swipeContainer;
+    private TextView tvText;
     List<String> key_words = new ArrayList<>();
 
     SearchView searchKey;
@@ -58,7 +60,9 @@ public class SocialFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         searchKey = view.findViewById(R.id.searchKey);
+        searchKey.setQueryHint("e.g. 'sad', 'taylor swift', 'road trip'");
         rvPosts = view.findViewById(R.id.rvPosts);
+        tvText = view.findViewById(R.id.tvText);
         rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
         allPosts = new ArrayList<>();
         adapter = new SocialAdapter(getContext(), allPosts);
@@ -66,6 +70,8 @@ public class SocialFragment extends Fragment {
         rvPosts.setAdapter(adapter);
 
         queryPosts();
+
+
 
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

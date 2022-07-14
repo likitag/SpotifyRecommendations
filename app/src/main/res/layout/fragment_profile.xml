@@ -3,19 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/end"
     tools:context=".fragments.ProfileFragment">
 
 
     <TextView
+        android:textColor="@color/white"
+        android:textSize="30dp"
+
         android:id="@+id/tvUsername"
-        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:text="Username" />
+        android:fontFamily="@font/julius_sans_one"
+        android:text="Username"
+        android:textStyle="bold" />
 
     <TextView
+        android:textSize="20dp"
+        android:textColor="@color/white"
         android:id="@+id/tvMyPlaylists"
+        android:fontFamily="@font/julius_sans_one"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvUsername"
@@ -28,12 +36,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvUsername"
-        android:layout_marginStart="150dp"
+        android:layout_marginStart="80dp"
         android:layout_toEndOf="@id/tvMyPlaylists"
+        android:fontFamily="@font/julius_sans_one"
         android:text="Saved Playlists:"
+        android:textColor="@color/white"
+        android:textSize="20dp"
         android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
+
         android:id="@+id/rvSaved"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,6 +54,7 @@
         android:padding="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
+
         android:id="@+id/rvPlaylists"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

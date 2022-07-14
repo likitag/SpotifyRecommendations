@@ -1,5 +1,6 @@
 package com.example.spotifyrecommendations.fragments;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,11 +35,15 @@ import org.json.JSONException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import spotify.api.spotify.SpotifyApi;
+import spotify.models.artists.ArtistFull;
+import spotify.models.tracks.TrackFull;
 
 //TODO: jsonArray of favorties is currently hodling lpost object ids rather than playlist object ids. Need to add another field for liked playlists
 
@@ -54,6 +60,9 @@ public class ProfileFragment extends Fragment {
     protected List<Playlist> SavedPlaylists;
     private SwipeRefreshLayout swipeContainer;
     ParseUser currentUser;
+    SharedPreferences sharedPreferences;
+    List<String> fave_artists = new ArrayList<>();
+    List<String> fave_tracks=new ArrayList<>();
 
 
 
@@ -79,6 +88,10 @@ public class ProfileFragment extends Fragment {
         tvUsername.setText(username);
         rvPlaylists = view.findViewById(R.id.rvPlaylists);
         rvPlaylists.setLayoutManager(new LinearLayoutManager(getContext()));
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
+        fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
 
         rvSaved = view.findViewById(R.id.rvSaved);
         rvSaved.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -90,6 +103,8 @@ public class ProfileFragment extends Fragment {
 
         rvPlaylists.setAdapter(adapter);
         rvSaved.setAdapter(adapter2);
+
+        token = sharedPreferences.getString("token", "default");
 
         queryPlaylists();
         try {
@@ -110,6 +125,8 @@ public class ProfileFragment extends Fragment {
 
         }
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+
+        new Task().execute();
 //        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 //            @Override
 //            public void onRefresh() {
@@ -182,4 +199,46 @@ public class ProfileFragment extends Fragment {
             });
         }
 
-    } }
+    }
+
+    private class Task extends AsyncTask<URL, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(URL... urls) {
+            Map<String, String> options = new HashMap<>();
+            SpotifyApi spotifyApi = new SpotifyApi(token);
+
+
+
+            List<ArtistFull> lst_a = spotifyApi.getArtists(new ArrayList<>(fave_artists)).getArtists();
+            List<TrackFull> lst_t = spotifyApi.getTracks(fave_tracks, options).getTracks();
+
+            for (ArtistFull a: lst_a){
+                Log.i(TAG, "favorite: " + a.getName());
+            }
+
+            for (TrackFull t: lst_t){
+                Log.i(TAG, "favorite: " + t.getName());
+            }
+
+
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+        }
+    }
+
+
+}
+

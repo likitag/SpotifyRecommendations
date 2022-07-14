@@ -3,15 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.SocialFragment">
 
+    <TextView
+        android:id="@+id/tvText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:elevation="10dp"
+        android:fontFamily="@font/julius_sans_one"
+        android:text="Search words or phrases to find relevant posts!"
+        android:textAlignment="center"></TextView>
+
     <SearchView
+        app:iconifiedByDefault="false"
+        android:layout_below="@id/tvText"
         android:id="@+id/searchKey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:queryHint="Find Posts" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+
         android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
