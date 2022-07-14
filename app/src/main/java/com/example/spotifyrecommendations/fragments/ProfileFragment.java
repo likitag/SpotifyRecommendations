@@ -124,7 +124,7 @@ public class ProfileFragment extends Fragment {
             currentUser = ParseUser.getCurrentUser();
 
         }
-        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        //swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
 
         new Task().execute();
 //        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

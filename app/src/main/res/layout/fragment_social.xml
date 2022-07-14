@@ -24,22 +24,29 @@
         android:layout_height="wrap_content"
         android:queryHint="Find Posts" />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-
-        android:id="@+id/swipeContainer"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPosts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/searchKey"
-        android:layout_marginTop="2dp">
+        android:padding="8dp" />
+
+<!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
+
+<!--        android:id="@+id/swipeContainer"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/searchKey"-->
+<!--        android:layout_marginTop="2dp">-->
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvPosts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp" />
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rvPosts"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding="8dp" />-->
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+<!--    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
 
 
 </RelativeLayout>
