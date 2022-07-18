@@ -13,12 +13,14 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Song;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.Serializable;
@@ -36,6 +38,7 @@ import spotify.models.playlists.PlaylistTrack;
 import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
 public class GeneratePlaylist extends AppCompatActivity {
+
     private static final String TAG = "Generate Playlist";
     String token;
     Map<String, String> extra = new HashMap<>();
@@ -46,10 +49,11 @@ public class GeneratePlaylist extends AppCompatActivity {
     private static String playlist_uri;
     ProgressBar pb;
     String playlistName;
-    private static Playlist newPlaylist;
+    //private static Playlist newPlaylist;
     LottieAnimationView music_load;
-
     String playlist_obj_id;
+
+
 
     List<String> listArtistId = new ArrayList<>();
     List<String> listTrackId = new ArrayList<>();
@@ -66,7 +70,7 @@ public class GeneratePlaylist extends AppCompatActivity {
         setContentView(R.layout.activity_generate_playlist);
         Intent i2 = getIntent();
         Bundle b = i2.getExtras();
-      //  pb = findViewById(R.id.progress);
+        //pb = findViewById(R.id.progress);
         music_load = findViewById(R.id.lottie_music_load);
         music_load.playAnimation();
 
@@ -93,7 +97,7 @@ public class GeneratePlaylist extends AppCompatActivity {
 
 
 
-    private void savePlaylist(String name, int length, String spotifyId, ParseUser author, String uri, String genre, String valence, String tempo) throws JSONException {
+    private void savePlaylist(String name, int length, String spotifyId, ParseUser author, String uri, String genre, String valence, String tempo) throws JSONException, ParseException {
         //ParseUser currentUser = ParseUser.getCurrentUser();
 
         //JSONArray user_playlists = currentUser.getJSONArray("Playlist");
@@ -109,49 +113,20 @@ public class GeneratePlaylist extends AppCompatActivity {
         playlist.setValence(valence);
         playlist.setTempo(tempo);
 
-
-        playlist.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e!=null){
-                    Log.e(TAG, "error while saving playlist", e);
+        playlist.setArtistID(listArtistId.get(0));
+        playlist.setTrackID(listTrackId.get(0));
+        playlist.save();
 
 
+        //TODO: add playlist to favorites
 
-                }
-                Log.i(TAG, "post was successful");
-                Log.i(TAG, "savePlaylist: " + playlist.getPlaylistId());
-                playlist_obj_id = playlist.getPlaylistId();
+        ParseUser user = ParseUser.getCurrentUser();
+        user.add(CustomUser.KEY_FAVORITES, playlist.getObjectId());
+        finish();
 
-                Intent rating = new Intent(GeneratePlaylist.this, RatingActivity.class);
-                Log.i(TAG, "passing: " + playlist_obj_id);
-
-                rating.putExtra("tempo", playlist_tempo);
-                rating.putExtra("valence", playlist_valence);
-
-                rating.putExtra("new playlist id", playlist_obj_id);
-                rating.putExtra("new playlist", (Serializable) newPlaylist);
-                rating.putExtra("token", token);
-                rating.putExtra("spotify playlist id", playlistId);
-                rating.putStringArrayListExtra("listArtists", (ArrayList<String>) listArtistId);
-                rating.putStringArrayListExtra("listTracks", (ArrayList<String>) listTrackId);
-                rating.putStringArrayListExtra("listGenres", (ArrayList<String>) listGenres);
-
-//                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
-//                spotify_app.setData(Uri.parse(playlist_uri));
-//                startActivity(spotify_app);
-
-                startActivity(rating);
-                finish();
-
-            }
-        });
-
-        newPlaylist = playlist;
-
+        //newPlaylist = playlist;
 
     }
-
 
 
     private class Task extends AsyncTask<URL, Integer, Long> {
@@ -169,14 +144,7 @@ public class GeneratePlaylist extends AppCompatActivity {
             for (int i = 0; i<spotifyRecs.size(); i++){
                 String uri = spotifyApi.getTrack(spotifyRecs.get(i), extra).getUri();
                 uris.add(uri);
-                String songName = spotifyApi.getTrack(spotifyRecs.get(i), options).getName();
-                String songArtist = spotifyApi.getTrack(spotifyRecs.get(i), options).getArtists().get(0).getName();
-                //saveSong(songName, songArtist);
-
-
             }
-
-
 
             for (int i=0; i< spotifyApi.getUserPlaylists(userId, extra).getItems().size(); i++){
                 if (spotifyApi.getUserPlaylists(userId, extra).getItems().get(i).getName().equals(playlistName)) {
@@ -186,8 +154,6 @@ public class GeneratePlaylist extends AppCompatActivity {
                 }
 
             }
-
-
 
             spotifyApi.addItemsToPlaylist(uris, playlistId, 0);
             playlist_uri = spotifyApi.getPlaylist(playlistId, extra).getUri();
@@ -209,77 +175,28 @@ public class GeneratePlaylist extends AppCompatActivity {
 
             playlist_valence = Float.toString(sum_valence /tracks.size());
             playlist_tempo = Float.toString(sum_tempo / tracks.size());
-
-
-
-
-
-
             return null;
         }
         @Override
         protected void onPostExecute(Long aLong) {
             try {
                 savePlaylist(playlistName, spotifyRecs.size(), playlistId, ParseUser.getCurrentUser(), playlist_uri, listGenres.get(0), playlist_valence, playlist_tempo);
-                Log.i(TAG, "playlist saved: " + newPlaylist);
-            } catch (JSONException e) {
+                //Log.i(TAG, "playlist saved: " + newPlaylist);
+            } catch (JSONException | ParseException e) {
                 e.printStackTrace();
             }
             Log.i(TAG, "finished adding items to new playlist ");
-            Log.i(TAG, "done creating songs");
-
 
             super.onPostExecute(aLong);
-            Intent spotify_app = new Intent(Intent.ACTION_VIEW);
-            spotify_app.setData(Uri.parse(playlist_uri));
-
-//            Intent rating = new Intent(GeneratePlaylist.this, RatingActivity.class);
-//            Log.i(TAG, "passing: " + playlist_obj_id);
-//
-//            rating.putExtra("new playlist id", playlist_obj_id);
-//            rating.putExtra("new playlist", (Serializable) newPlaylist);
-//            rating.putExtra("token", token);
-//
-//            startActivity(rating);
             finish();
-
-//            TaskStackBuilder.create(GeneratePlaylist.this)
-//                    .addNextIntent( rating)
-//                    // use this method if you want "intentOnTop" to have it's parent chain of activities added to the stack. Otherwise, more "addNextIntent" calls will do.
-//                    .addNextIntentWithParentStack( spotify_app )
-//                    .startActivities();
-
-
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            //pb.setVisibility(View.VISIBLE);
-            //music_load.setVisibility(View.VISIBLE);
             Toast.makeText(GeneratePlaylist.this, "animating", Toast.LENGTH_SHORT);
-           // music_load.playAnimation();
-
-
 
         }
     }
 
-    private void saveSong(String songName, String songArtist) {
-        Song song = new Song();
-        song.setName(songName);
-        song.setArtist(songArtist);
-        song.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e!=null){
-                    Log.e(TAG, "issue with saving song", e);
-                    return;
-
-                }
-
-
-            }
-        });
-    }
 }

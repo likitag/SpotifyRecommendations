@@ -8,22 +8,6 @@
     android:layout_height="wrap_content"
     >
 
-<!--    <xyz.hanks.library.bang.SmallBangView-->
-<!--        android:layout_margin="20dp"-->
-<!--        android:id="@+id/imageViewAnimation"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        >-->
-<!--        <ImageView-->
-<!--            android:id="@+id/imageView"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:src="@drawable/heart_selector"-->
-<!--            />-->
-
-<!--    </xyz.hanks.library.bang.SmallBangView>-->
-
     <TextView
         android:id="@+id/tvUser"
         android:layout_width="wrap_content"
@@ -50,7 +34,6 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottie_break_heart"
-
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_below="@id/tvDescription"
@@ -95,5 +78,15 @@
         android:layout_below="@id/ivPlaylistImage"
         android:backgroundTint="@android:color/transparent"
         app:srcCompat="@drawable/ic_heart_empty" />
+
+    <ImageButton
+        android:id="@+id/ibSaved"
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ivPlaylistImage"
+        android:layout_toEndOf="@id/tvLikeNum"
+        android:backgroundTint="@android:color/transparent"
+        tools:srcCompat="@drawable/ic_baseline_save_alt_24" />
 
 </RelativeLayout>

@@ -8,7 +8,16 @@
     <MultiAutoCompleteTextView
         android:id="@+id/etPlaylist"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvTitleChoose" />
+
+<!--    <SearchView-->
+<!--        android:id="@+id/searchKey"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:queryHint="FChoose Playlist" >-->
+
+<!--    </SearchView>-->
 
 <!--    <TextView-->
 <!--        android:id="@+id/tvChoose"-->
@@ -30,6 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/etPlaylist"
+        android:layout_toEndOf="@id/searchKey"
         android:ems="10"
         android:gravity="start|top"
         android:hint="Add a description"
@@ -40,8 +50,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/etDescription"
+        android:layout_toEndOf="@id/searchKey"
         android:text="post" />
 
+    <TextView
+        android:id="@+id/tvTitleChoose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose one of your playlists to share"
+        android:textSize="20sp" />
 
 
 </RelativeLayout>

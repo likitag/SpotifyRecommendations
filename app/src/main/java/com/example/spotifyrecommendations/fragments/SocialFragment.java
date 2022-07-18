@@ -114,6 +114,8 @@ public class SocialFragment extends Fragment {
         });
     }
 
+
+
     private void queryPlaylistInfo(){
         ParseQuery<Playlist> query_playlist = ParseQuery.getQuery(Playlist.class);
         query_playlist.findInBackground(new FindCallback<Playlist>() {

@@ -40,6 +40,7 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.artists.ArtistFull;
+import spotify.models.artists.ArtistSimplified;
 import spotify.models.tracks.TrackFull;
 
 public class MainActivity extends AppCompatActivity {
@@ -66,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference reference;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
-    List<ArtistFull> top_artists;
-    List<TrackFull> top_tracks;
+    List<ArtistFull> user_top_artists = new ArrayList<>();
+    List<ArtistSimplified> all_top_artists = new ArrayList<>();
+    List<TrackFull> top_tracks = new ArrayList<>();
     Boolean isComplete = false;
 
 //    private Toolbar mToolbar;
@@ -136,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        builder.setNegativeButton("Create", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -300,12 +303,32 @@ public class MainActivity extends AppCompatActivity {
             Map<String, String> options = new HashMap<>();
             SpotifyApi spotifyApi = new SpotifyApi(token);
             username = spotifyApi.getCurrentUser().getDisplayName();
+            Log.i(TAG, "doInBackground: user" + username);
+            Log.i(TAG, "doInBackground: token" + token);
 
-            top_artists = spotifyApi.getTopArtists(options).getItems();
+            user_top_artists = spotifyApi.getTopArtists(options).getItems();
+            Log.i(TAG, "doInBackground: top" + user_top_artists.size());
 
 
 
             top_tracks = spotifyApi.getTopTracks(options).getItems();
+
+            if (user_top_artists.size()==0){
+
+                //Log.i(TAG, "albums new reelase:  " + spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists().get(0));
+
+                all_top_artists.addAll(spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists());
+            }
+
+
+
+            Map<String, String> opt = new HashMap<>();
+            if(top_tracks.size()==0){
+                opt.put("market", "ES");
+
+                top_tracks.addAll(spotifyApi.getArtistTopTracks(all_top_artists.get(0).getId(), opt).getTracks());
+                Log.i(TAG, "top tracks all: " + spotifyApi.getArtistTopTracks(all_top_artists.get(0).getId(), opt).getTracks().size());
+            }
             return null;
         }
 
@@ -313,16 +336,28 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
             Set<String> set_a = new HashSet<String>();
-            for (ArtistFull a: top_artists){
+
+            for (ArtistFull a: user_top_artists){
                 set_a.add(a.getId());
             }
+
+            if(set_a.size()==0){
+                for (ArtistSimplified a: all_top_artists){
+                    set_a.add(a.getId());
+                }
+
+            }
+
+            Log.i(TAG, "onPostExecute: main" + set_a.size());
 
             Log.i(TAG, "onPostExecute: " + set_a.size());
 
             Set<String> set_t = new HashSet<String>();
+
             for (TrackFull t: top_tracks){
                 set_t.add(t.getId());
             }
+
 
             editor.putStringSet("top artists", set_a);
             editor.apply();

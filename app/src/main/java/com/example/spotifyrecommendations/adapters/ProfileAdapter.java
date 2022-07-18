@@ -1,11 +1,13 @@
 package com.example.spotifyrecommendations.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -16,12 +18,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.spotifyrecommendations.GeneratePlaylist;
+import com.example.spotifyrecommendations.MainActivity;
 import com.example.spotifyrecommendations.R;
+import com.example.spotifyrecommendations.RatingActivity;
 import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Post;
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -92,33 +104,30 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
             super(itemView);
             tvPlaylistName = itemView.findViewById(R.id.tvPlaylistName);
 
-//            itemView.setOnTouchListener(new View.OnTouchListener() {
-//
-//                GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
-//
-//                    @Override
-//                    public void onLongPress(MotionEvent e) {
-//                        super.onLongPress(e);
-//                        int position = getAdapterPosition();
-//                        if (position != RecyclerView.NO_POSITION) {
-//                            Playlist playlist = playlists.get(position);
-//
-//
-//                        }
-//                    }
-//
-//                    @Override
-//                    public boolean onDoubleTap(MotionEvent e) {
-//                        Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
-//                        return true;
-//                    }
-//                });
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//                    gestureDetector.onTouchEvent(event);
-//                    return true;
-//                }
-//            });
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+
+                GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
+
+                    @Override
+                    public void onLongPress(MotionEvent e) {
+                        super.onLongPress(e);
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            Playlist playlist = playlists.get(position);
+                            deletePlaylist(playlist);
+
+
+
+                        }
+                    }
+
+                });
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    gestureDetector.onTouchEvent(event);
+                    return true;
+                }
+            });
 
 
             itemView.setOnClickListener(this);
@@ -131,6 +140,16 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
         }
 
+        public Integer check_liked(String id, ParseUser user, String key) throws JSONException {
+
+            for (int i = 0; i< user.getJSONArray(key).length(); i++){
+                if (user.getJSONArray(key).get(i).equals(id)){
+                    return i;
+                }
+            }
+            return -1;
+        }
+
 
 
 
@@ -141,15 +160,44 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         public void onClick(View v) {
             int position = getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
-
                 // get the movie at the position, this won't work if the class is static
                 Playlist playlist = playlists.get(position);
+
+                Boolean isInSaved = false;
+
+                try {
+                    if (check_liked(playlist.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_SAVED) == -1){
+                        isInSaved = false;
+                    }
+                    else {
+                        isInSaved = true;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.i(TAG, "onClick: " + playlist.getRated());
+
+
+
+                if (!playlist.getRated() && !isInSaved) {
+                //TODO:launch rating intent
+                    Intent rating = new Intent(context, RatingActivity.class);
+                    rating.putExtra("new playlist id", playlist.getObjectId());
+                    context.startActivity(rating);
+
+                }
+                else {
+                    Intent spotify_app = new Intent(Intent.ACTION_VIEW);
+                    spotify_app.setData(Uri.parse(playlist.getURI()));
+                    context.startActivity(spotify_app);
+
+                }
+
                 new getSongs().execute();
 
-
-
-                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
-                spotify_app.setData(Uri.parse(playlist.getURI()));
+//                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
+//                spotify_app.setData(Uri.parse(playlist.getURI()));
 
 //                Intent profile = new Intent(context, MainActivity.class);
 ////                profile.putExtra("playlist id", playlistId);
@@ -165,12 +213,70 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                 i.setData(Uri.parse(playlist.getURI()));
                 //context.startActivity(i);
 
-
             }
-
 
         }
     }
+
+    private void deletePlaylist(Playlist playlist) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Are you sure you want to remove this playlist? (to delete your own playlist from spotify, you must delete through Spotify app)");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
+                ParseUser user = ParseUser.getCurrentUser();
+                JSONArray currSaved = user.getJSONArray("saved");
+                JSONArray currFaves = user.getJSONArray("favorites");
+                try {
+                    int ind = check_saved(playlist.getObjectId(), user, CustomUser.KEY_SAVED);
+                    if(ind!=-1) {
+                        currSaved.remove(ind);
+                        user.put(CustomUser.KEY_SAVED, currSaved);
+                        user.saveInBackground();
+                        Toast.makeText(context, "playlist was removed", Toast.LENGTH_SHORT).show();
+                    }
+
+                    int ind2 = check_saved(playlist.getObjectId(), user, CustomUser.KEY_FAVORITES);
+                    if(ind2!=-1) {
+                        currFaves.remove(ind2);
+                        user.put(CustomUser.KEY_FAVORITES, currFaves);
+                        user.saveInBackground();
+                        Toast.makeText(context, "playlist was removed", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+
+
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+            }
+        });
+
+        builder.show();
+    }
+
+    public Integer check_saved(String id, ParseUser user, String key) throws JSONException {
+
+        for (int i = 0; i< user.getJSONArray(key).length(); i++){
+            if (user.getJSONArray(key).get(i).equals(id)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
     private class getSongs extends AsyncTask<URL, Integer, Long> {
 
         @Override

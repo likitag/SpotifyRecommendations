@@ -65,13 +65,10 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         RootRef = FirebaseDatabase.getInstance().getReference();
         btnLogin = findViewById(R.id.btnLogin);
-        //title = findViewById(R.id.lottie_title);
-
         music_listen = findViewById(R.id.lottie_music_listen);
         notes = findViewById(R.id.lottie_music_notes);
         notes.playAnimation();
         music_listen.playAnimation();
-       // title.playAnimation();
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,31 +143,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-//    private class Task extends AsyncTask<URL, Integer, Long> {
-//
-//        @Override
-//        protected Long doInBackground(URL... urls) {
-//            SpotifyApi spotifyApi = new SpotifyApi(token);
-//
-//            //for Parse User, plan on using Spotify display name as username and unique spotify account ID as password
-//            username = spotifyApi.getCurrentUser().getDisplayName();
-//            password = spotifyApi.getCurrentUser().getId();
-//            Log.i(TAG, "finished network requests");
-//            loginUser(username, password);
-//
-//            return null;
-//        }
-//        @Override
-//        protected void onPostExecute(Long aLong) {
-//            super.onPostExecute(aLong);
-//        }
-//
-//        @Override
-//        protected void onProgressUpdate(Integer... values) {
-//            super.onProgressUpdate(values);
-//        }
-//    }
 
     private void loginUser(String username, String password){
         ParseUser.logInInBackground(username, password, new LogInCallback() {

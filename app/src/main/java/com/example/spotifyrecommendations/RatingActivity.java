@@ -6,9 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.animation.Animator;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -48,18 +50,15 @@ import spotify.models.recommendations.RecommendationCollection;
 
 public class RatingActivity extends AppCompatActivity {
     private static final String TAG = "Rating activity";
-    TextView tvLike;
-    TextView tvDislike;
-    ImageButton ibLike;
-    ImageButton ibDislike;
     String playlist_id;
     String token;
     Map<String, String> options = new HashMap<>();
 
-    Playlist playlist;
 
     String spotify_playlist_id;
     LottieAnimationView music_load;
+
+    SharedPreferences sharedPreferences;
 
 
     TextView tvMood;
@@ -88,6 +87,8 @@ public class RatingActivity extends AppCompatActivity {
     List<String> listTrackId = new ArrayList<>();
     List<String> listGenres = new ArrayList<>();
 
+    Playlist plst;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,30 +98,29 @@ public class RatingActivity extends AppCompatActivity {
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(RatingActivity.this);
+        token = sharedPreferences.getString("token", "default");
+
+
 
         if(b!=null)
         {
             Log.i(TAG, "bundle not null");
-            playlist = (Playlist) getIntent().getSerializableExtra("new playlist");
             playlist_id = (String) b.get("new playlist id");
-            spotify_playlist_id = (String) b.get("spotify playlist id");
-            Log.i(TAG, playlist.getName());
             Log.i(TAG, playlist_id);
-            token =(String) b.get("token");
-            avg_tempo = Float.parseFloat((String) b.get("tempo"));
-            avg_valence = Float.parseFloat((String) b.get("valence"));
-
-            listArtistId = getIntent().getStringArrayListExtra("listArtists");
-            listTrackId = getIntent().getStringArrayListExtra("listTracks");
-            listGenres = getIntent().getStringArrayListExtra("listGenres");
-
-
         }
-        tvLike = findViewById(R.id.tvLike);
-        tvDislike = findViewById(R.id.tvDislike);
-        ibLike = findViewById(R.id.ibLike);
-        ibDislike = findViewById(R.id.ibDislike);
+        try {
+            plst = queryPlaylist();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
+        spotify_playlist_id = plst.getSpotifyid();
+        avg_tempo = Float.parseFloat(plst.getTempo());
+        avg_valence = Float.parseFloat(plst.getValence());
+        listArtistId.add(plst.getArtistID());
+        listTrackId.add(plst.getTrackID());
+        listGenres.add(plst.getGenre());
 
 
         tvMood = findViewById(R.id.tvMood);
@@ -150,6 +150,11 @@ public class RatingActivity extends AppCompatActivity {
         btnKeep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    updatePlaylist(Float.toString(avg_tempo), Float.toString(avg_valence));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 Toast.makeText(RatingActivity.this, "added", Toast.LENGTH_SHORT).show();
                 RatingActivity.this.finish();
             }
@@ -203,38 +208,23 @@ public class RatingActivity extends AppCompatActivity {
 
                 music_load.setVisibility(View.VISIBLE);
                 music_load.playAnimation();
+
                 new updatePlaylistItems().execute();
 
             }
         });
 
-        ibLike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(RatingActivity.this, "User likes playlist!", Toast.LENGTH_SHORT).show();
-//                playlist.setLike(true);
-//                playlist.saveInBackground();
-                updatePlaylist(true);
-                finish();
-
-                //TODO: create functionality for if user liked the playlist
-            }
-        });
-
-//
-//
-        ibDislike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(RatingActivity.this, "User dislikes playlist", Toast.LENGTH_SHORT).show();
-                updatePlaylist(false);
-                finish();
-                //TODO: create functionality for if user disliked the playlist
-            }
-        });
 
 
 
+
+
+    }
+
+    private Playlist queryPlaylist() throws ParseException {
+        ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
+        query.whereEqualTo(Playlist.KEY_OBJECT_ID, playlist_id);
+        return query.find().get(0);
     }
 
 
@@ -283,22 +273,15 @@ public class RatingActivity extends AppCompatActivity {
     }
 
 
-    private void updatePlaylist(Boolean like)  {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
-        query.getInBackground(playlist_id, new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                if (e == null) {
-                    Log.i(TAG, "here!");
-                    object.put("Like", like);
-                    object.saveInBackground();
-                } else {
-                    Log.i(TAG, "sad");
-                    Log.e(TAG, "something went wrong...", e);
-                }
 
-            }
-        });
+    private void updatePlaylist(String tempo, String valence) throws ParseException {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
+        ParseObject object = query.get(playlist_id);
+        object.put("Like", true);
+        object.put("Tempo", tempo);
+        object.put("Rated", true);
+        object.put("Valence", valence);
+        object.save();
     }
 
     private class updatePlaylistItems extends AsyncTask<URL, Integer, Long> {
@@ -465,9 +448,7 @@ public class RatingActivity extends AppCompatActivity {
                 spotifyApi.addItemsToPlaylist(uris, spotify_playlist_id, 0);
             }
             else {
-
                 Log.i(TAG, "no songs to delete");
-
             }
 
             List<PlaylistTrack> tracks2 = spotifyApi.getPlaylist(spotify_playlist_id, options).getTracks().getItems();
@@ -488,32 +469,32 @@ public class RatingActivity extends AppCompatActivity {
             float avg_valence2 = sum_valence2 / tracks2.size();
             Log.i(TAG, "final playlist avg tempo: " + avg_tempo2);
             Log.i(TAG, "final playlist avg valence: " + avg_valence2);
+
+            try {
+                updatePlaylist(Float.toString(avg_tempo2), Float.toString(avg_valence2));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
             return null;
 
         }
         @Override
         protected void onPostExecute(Long aLong) {
-           // Log.i(TAG, "done removing songs from playlist" );
             Toast.makeText(RatingActivity.this, "done updating!", Toast.LENGTH_SHORT).show();
             music_load.clearAnimation();
             RatingActivity.this.finish();
-
  }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-
-
-
-
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             music_load.playAnimation();
-
         }
     }
 

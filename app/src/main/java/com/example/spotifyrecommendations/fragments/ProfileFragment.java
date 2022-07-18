@@ -25,6 +25,7 @@ import com.example.spotifyrecommendations.adapters.ProfileAdapter;
 import com.example.spotifyrecommendations.R;
 import com.example.spotifyrecommendations.models.Post;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -58,11 +59,12 @@ public class ProfileFragment extends Fragment {
     protected ProfileAdapter adapter2;
     protected List<Playlist> MyPlaylists;
     protected List<Playlist> SavedPlaylists;
-    private SwipeRefreshLayout swipeContainer;
     ParseUser currentUser;
     SharedPreferences sharedPreferences;
     List<String> fave_artists = new ArrayList<>();
     List<String> fave_tracks=new ArrayList<>();
+    private SwipeRefreshLayout swipeContainerSaved;
+    private SwipeRefreshLayout swipeContainerMy;
 
 
 
@@ -90,8 +92,13 @@ public class ProfileFragment extends Fragment {
         rvPlaylists.setLayoutManager(new LinearLayoutManager(getContext()));
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
+
+
         fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
         fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
+
+
+        Log.i(TAG, "onViewCreated: num fave artists " + fave_artists.size());
 
         rvSaved = view.findViewById(R.id.rvSaved);
         rvSaved.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -108,10 +115,37 @@ public class ProfileFragment extends Fragment {
 
         queryPlaylists();
         try {
-            queryPlaylists3();
+            queryPlaylistsSaved();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        swipeContainerSaved = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainerSaved.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                SavedPlaylists.clear();
+                adapter.clear();
+                try {
+                    queryPlaylistsSaved();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                swipeContainerSaved.setRefreshing(false);
+            }
+        });
+
+        swipeContainerMy = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainerMy);
+        swipeContainerMy.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                MyPlaylists.clear();
+                adapter.clear();
+                queryPlaylists();
+                swipeContainerMy.setRefreshing(false);
+            }
+        });
 
 
 
@@ -122,30 +156,8 @@ public class ProfileFragment extends Fragment {
         }
         else{
             currentUser = ParseUser.getCurrentUser();
-
         }
-        //swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
-
         new Task().execute();
-//        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//
-//                adapter.clear();
-//                adapter2.clear();
-//                queryPlaylists();
-////                try {
-////                    queryPlaylists2();
-////                } catch (JSONException e) {
-////                    e.printStackTrace();
-////                }
-//                // ...the data has come back, add new items to your adapter...
-//                //adapter.addAll(...);
-//                // Now we call setRefreshing(false) to signal refresh has finished
-//                swipeContainer.setRefreshing(false);
-//            }
-//        });
-
     }
 
     private void queryPlaylists() {
@@ -154,6 +166,8 @@ public class ProfileFragment extends Fragment {
         query.whereEqualTo(Playlist.KEY_AUTHOR, ParseUser.getCurrentUser());
         query.addDescendingOrder("createdAt");
 
+        ParseUser user = ParseUser.getCurrentUser();
+        JSONArray curr_faves = user.getJSONArray(CustomUser.KEY_FAVORITES);
 
         // start an asynchronous call for posts
         query.findInBackground(new FindCallback<Playlist>() {
@@ -164,18 +178,29 @@ public class ProfileFragment extends Fragment {
                     Log.e("TAG", "Issue with getting playlists", e);
                     return;
                 }
-
-                // for debugging purposes let's print every post description to logcat
-
-
                 // save received posts to list and notify adapter of new data
-                MyPlaylists.addAll(playlists);
+                HashSet<String> set_faves= new HashSet<>();
+                for (int i=0; i<curr_faves.length(); i++){
+                    try {
+                        set_faves.add((String) curr_faves.get(i));
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                for (Playlist playlist: playlists){
+                    if(set_faves.contains(playlist.getObjectId())){
+                        MyPlaylists.add(playlist);
+                    }
+                }
+
+                //MyPlaylists.addAll(playlists);
                 adapter.notifyDataSetChanged();
             }
         });
     }
 
-    private void queryPlaylists3() throws JSONException {
+    private void queryPlaylistsSaved() throws JSONException {
         ParseUser user = ParseUser.getCurrentUser();
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
 
@@ -208,7 +233,19 @@ public class ProfileFragment extends Fragment {
             Map<String, String> options = new HashMap<>();
             SpotifyApi spotifyApi = new SpotifyApi(token);
 
+            if (fave_artists.size()==0){
+                fave_artists.add(spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists().get(0).getId());
 
+
+            }
+
+
+            Map<String, String> opt = new HashMap<>();
+            if(fave_tracks.size()==0){
+                opt.put("market", "ES");
+
+                fave_tracks.add(spotifyApi.getArtistTopTracks(fave_artists.get(0), opt).getTracks().get(0).getId());
+            }
 
             List<ArtistFull> lst_a = spotifyApi.getArtists(new ArrayList<>(fave_artists)).getArtists();
             List<TrackFull> lst_t = spotifyApi.getTracks(fave_tracks, options).getTracks();

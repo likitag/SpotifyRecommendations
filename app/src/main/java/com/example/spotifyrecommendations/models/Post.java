@@ -16,6 +16,7 @@ public class Post extends ParseObject {
     public static final String KEY_PLAYLIST = "Playlist";
     public static final String KEY_PLAYLISTURI = "PlaylistURI";
     public static final String KEY_PLAYLISTID = "PlaylistID";
+    public static final String KEY_COVER = "Cover";
 
 
 
@@ -88,6 +89,14 @@ public class Post extends ParseObject {
 
     public void setPlaylist(Playlist playlist){
         put(KEY_PLAYLIST, playlist);
+    }
+
+    public String getCover(){
+        return getString(KEY_COVER);
+    }
+
+    public void setCover(String url){
+        put(KEY_COVER, url);
     }
 
 

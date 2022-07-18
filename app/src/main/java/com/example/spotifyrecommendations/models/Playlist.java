@@ -22,6 +22,9 @@ public class Playlist extends ParseObject implements Serializable {
     public static final String KEY_VALENCE = "Valence";
     public static final String KEY_TEMPO = "Tempo";
     public static final String KEY_GENRE = "Genre";
+    public static final String KEY_ARTISTID = "ArtistID";
+    public static final String KEY_TRACKID = "TrackID";
+    public static final String KEY_RATED = "Rated";
 
 
 
@@ -108,6 +111,30 @@ public class Playlist extends ParseObject implements Serializable {
 
     public void setTempo(String tempo){
         put(KEY_TEMPO, tempo);
+    }
+
+    public String getArtistID(){
+        return getString(KEY_ARTISTID);
+    }
+
+    public void setArtistID(String id){
+        put(KEY_ARTISTID, id);
+    }
+
+    public String getTrackID(){
+        return getString(KEY_TRACKID);
+    }
+
+    public void setTrackID(String id){
+        put(KEY_TRACKID, id);
+    }
+
+    public Boolean getRated(){
+        return getBoolean(KEY_RATED);
+    }
+
+    public void setRated(Boolean bool){
+        put(KEY_RATED, bool);
     }
 
 

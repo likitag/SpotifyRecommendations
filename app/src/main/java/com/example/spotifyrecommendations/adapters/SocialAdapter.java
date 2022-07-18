@@ -3,6 +3,7 @@ package com.example.spotifyrecommendations.adapters;
 import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -90,6 +91,8 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
         TextView tvLikeNum;
         LottieAnimationView like;
         LottieAnimationView unlike;
+        ImageButton ibSave;
+
         private GestureDetector gestureDetector;
         public ViewHolder(@NonNull View itemView)  {
             super(itemView);
@@ -99,6 +102,9 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             ibLikePost = itemView.findViewById(R.id.ibLikePost);
             tvLikeNum = itemView.findViewById(R.id.tvLikeNum);
             like = itemView.findViewById(R.id.lottie_heart);
+            ibSave = itemView.findViewById(R.id.ibSaved);
+            ibSave.setVisibility(View.VISIBLE);
+
             like.setVisibility(View.GONE);
             unlike = itemView.findViewById(R.id.lottie_break_heart);
             unlike.setVisibility(View.GONE);
@@ -192,22 +198,22 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                         if (position != RecyclerView.NO_POSITION) {
 
                            Post post = posts.get(position);
-
                             Log.i(TAG, "onLongPress: " + CustomUser.KEY_SAVED);
-
-
                             try {
                                 int ind = check_liked(post.getPlaylistID(), user, CustomUser.KEY_SAVED);
                                 if (ind == -1){
 
-                                    user.add(CustomUser.KEY_SAVED, post.getPlaylistID());
+                                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.transparent));
                                     Toast.makeText(context, "saving", Toast.LENGTH_SHORT).show();
+
+                                    user.add(CustomUser.KEY_SAVED, post.getPlaylistID());
                                     user.saveInBackground();
 
                                 }
                                 else {
                                     JSONArray currSaved = user.getJSONArray("saved");
                                     currSaved.remove(ind);
+                                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.transparent));
                                     Toast.makeText(context, "unsaving", Toast.LENGTH_SHORT).show();
                                     user.put(CustomUser.KEY_SAVED, currSaved);
                                     user.saveInBackground();
@@ -241,11 +247,6 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                                     like.setVisibility(View.VISIBLE);
                                     like.playAnimation();
                                     updatePostLikes(1, post.getObjectId());
-
-
-
-
-
                                     user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
                                     user.saveInBackground();
 
@@ -260,15 +261,11 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                                     currFaves.remove(ind);
                                     user.put(CustomUser.KEY_FAVORITES, currFaves);
                                     user.saveInBackground();
-
                                     updatePostLikes(-1, post.getObjectId());
-
                                 }
-
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
                             }
-
                         }
                         //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
                         //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
@@ -318,23 +315,17 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             for (int i = 0; i< user.getJSONArray(key).length(); i++){
                 if (user.getJSONArray(key).get(i).equals(id)){
                     return i;
-
                 }
-
-
-
             }
-
             return -1;
-
         }
+
+
 
 
         public void bind(Post post) {
             // Bind the post data to the view elements
-
             tvLikeNum.setText(post.getLikes() + " likes");
-
             try {
                 if (check_liked(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_FAVORITES) == -1){
                     ibLikePost.setImageResource(R.drawable.ic_heart_empty);
@@ -345,7 +336,16 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
+            try {
+                if (check_liked(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_SAVED) == -1){
+                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.transparent));
+                }
+                else {
+                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.cool));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             ParseUser author = post.getUser();
             try {
                String username = author.fetchIfNeeded().getString("username");
@@ -361,16 +361,10 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             ParseFile image = post.getImage();
 
             if (image != null) {
-                Glide.with(context).load(image.getUrl()).centerCrop().into(ivPostImage);
+                Glide.with(context).load(post.getCover()).centerCrop().into(ivPostImage);
             }
 
-            // TODO: set like to full heart image if the currentUser has liked the post
-
-
         }
-
-
-
         @Override
         public void onClick(View v) {
 
@@ -378,7 +372,6 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
 
 }
-
 
 }
 

@@ -8,15 +8,15 @@
 
 
     <TextView
-        android:textColor="@color/white"
-        android:textSize="30dp"
-
         android:id="@+id/tvUsername"
         android:layout_width="wrap_content"
+
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:fontFamily="@font/julius_sans_one"
         android:text="Username"
+        android:textColor="@color/white"
+        android:textSize="30dp"
         android:textStyle="bold" />
 
     <TextView
@@ -31,6 +31,8 @@
         android:text="My Playlists:"
         android:textStyle="bold" />
 
+
+
     <TextView
         android:id="@+id/tvSavedPlaylists"
         android:layout_width="wrap_content"
@@ -44,24 +46,47 @@
         android:textSize="20dp"
         android:textStyle="bold" />
 
-    <androidx.recyclerview.widget.RecyclerView
-
-        android:id="@+id/rvSaved"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@id/tvSavedPlaylists"
-        android:layout_toEndOf="@id/rvPlaylists"
-        android:padding="8dp" />
+        android:layout_alignStart="@id/tvSavedPlaylists"
+        android:layout_toEndOf="@id/swipeContainerMy">
 
-    <androidx.recyclerview.widget.RecyclerView
 
-        android:id="@+id/rvPlaylists"
-        android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+
+            android:id="@+id/rvSaved"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvSavedPlaylists"
+            android:layout_alignStart="@id/tvSavedPlaylists"
+            android:layout_toEndOf="@id/rvPlaylists"
+            android:padding="8dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainerMy"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvMyPlaylists"
-        android:padding="8dp" />
+        android:layout_alignStart="@id/tvMyPlaylists"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="-1dp">
 
-<!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
+        <androidx.recyclerview.widget.RecyclerView
+
+            android:id="@+id/rvPlaylists"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvMyPlaylists"
+            android:padding="8dp" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
 <!--        android:id="@+id/swipeContainer"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->

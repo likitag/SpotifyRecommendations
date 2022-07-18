@@ -70,26 +70,11 @@ public class ComposeFragment extends Fragment {
     private static ArrayList <String> rectrackIds_backup;
     Boolean isTask1Completed=false;
     EditText etName;
-
-    ListView list;
-    ListView listViewArtists;
-    TrackAdapter adapter_track;
-
-    ArtistAdapter adapter_artist;
-    List<TrackFull> tracks = new ArrayList<>();
-    List<ArtistFull> artists = new ArrayList<>();
-
-    Button btnFindTrack;
-    Button btnFindArtist;
+    Map<String, String> options = new HashMap<>();
 
     SharedPreferences sharedPreferences;
     List<String> fave_artists = new ArrayList<>();
     List<String> fave_tracks=new ArrayList<>();
-//
-//    SearchView editsearch;
-//    SearchView artist_search;
-//    String[] animalNameList;
-//    ArrayList<TrackFull> arraylist = new ArrayList<TrackFull>();
 
 
 
@@ -102,9 +87,6 @@ public class ComposeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
-       // token = getArguments().get("token").toString();
 
 
         // Inflate the layout for this fragment
@@ -128,117 +110,12 @@ public class ComposeFragment extends Fragment {
         token = sharedPreferences.getString("token", "default");
         fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
         fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
-//        list = view.findViewById(R.id.listview);
-       // listViewArtists = view.findViewById(R.id.listviewArtists);
-//        btnFindArtist = view.findViewById(R.id.btnFindArtist);
-        //btnFindTrack = view.findViewById(R.id.btnFindTrack);
-
-
-//        btnFindTrack.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                adapter_track = new TrackAdapter(getContext(), tracks);
-//                list.setAdapter(adapter_track);
-//                list.setVisibility(View.VISIBLE);
-//                new DisplayTracks(etTracks.getText().toString()).execute();
-//
-//            }
-//        });
-
-//        btnFindArtist.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                adapter_artist = new ArtistAdapter(getContext(), artists);
-//                listViewArtists.setAdapter(adapter_artist);
-//                listViewArtists.setVisibility(View.VISIBLE);
-//                new DisplayArtists(etArtists.getText().toString()).execute();
-//
-//            }
-//        });
-
-//        editsearch = view.findViewById(R.id.search);
-//        artist_search = view.findViewById(R.id.searchArtists);
-//\
-//
-//
-//        editsearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if(!hasFocus){
-//                    Toast.makeText(getContext(), "switching focus", Toast.LENGTH_SHORT).show();
-//
-//
-//                }
-//            }
-//        });
-
-//        artist_search.setOnQueryTextListener(new OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                adapter_artist = new ArtistAdapter(getContext(), artists);
-//                listViewArtists.setAdapter(adapter_artist);
-//                listViewArtists.setVisibility(View.VISIBLE);
-//                new DisplayArtists(query).execute();
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                return false;
-//            }
-//        });
-
-
-//        editsearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                adapter_track = new TrackAdapter(getContext(), tracks);
-//                list.setAdapter(adapter_track);
-//                list.setVisibility(View.VISIBLE);
-//                new DisplayTracks(query).execute();
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//
-//
-//                return false;
-//            }
-//        });
 
         // Locate the ListView in listview_main.xml
-
-
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             //once user submits inputs, start network requests.
             public void onClick(View v) {
-                //findArtist();
-                //findTrack();
-
-                if(TextUtils.isEmpty(etArtists.getText())){
-
-//                    int index = (int)(Math.random() * fave_artists.size());
-//                    listArtistId.add(fave_artists.get(index));
-
-                }
-
-                if(TextUtils.isEmpty(etTracks.getText())){
-//                    int index = (int)(Math.random() * fave_tracks.size());
-//                    listTrackId.add(fave_tracks.get(index));
-
-                    //TODO: get user favortites tracks
-                }
-
-                if(TextUtils.isEmpty(etGenres.getText())){
-                    //TODO: get user favortite genres
-                }
-
-
-
-
                 new Task().execute();
             }
         });
@@ -261,34 +138,28 @@ public class ComposeFragment extends Fragment {
 
             types.add(QueryType.ARTIST);
             types.add(QueryType.TRACK);
+            if(TextUtils.isEmpty(etTracks.getText()) && TextUtils.isEmpty(etArtists.getText())){
 
-            //spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems();
+                int index1 = (int)(Math.random() * fave_tracks.size());
+                track_id = fave_tracks.get(index1);
 
-            if(!TextUtils.isEmpty(etTracks.getText())) {
+                int index2 = (int)(Math.random() * fave_artists.size());
+                artist_id = fave_artists.get(index2);
+            }
+
+            else if(!TextUtils.isEmpty(etTracks.getText())) {
                 track_id = spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems().get(0).getId();
-            }
-            else {
-
-                int index = (int)(Math.random() * fave_tracks.size());
-                track_id = fave_tracks.get(index);
-
+                artist_id = spotifyApi.getTrack(track_id, options).getArtists().get(0).getId();
             }
 
-
-            if(!TextUtils.isEmpty(etArtists.getText())){
+            else if(!TextUtils.isEmpty(etArtists.getText())){
                 artist_id = spotifyApi.searchItem(etArtists.getText().toString(), types, extra).getArtists().getItems().get(0).getId();
+                track_id = spotifyApi.getArtistTopTracks(artist_id, options).getTracks().get(0).getId();
             }
-            else{
-                int index = (int)(Math.random() * fave_tracks.size());
-                artist_id = fave_artists.get(index);
 
-            }
 
             listArtistId.add(artist_id);
-
             listTrackId.add(track_id);
-
-
             listGenres.add(etGenres.getText().toString());
 
             Map<String, String> rec_extra = new HashMap<>();
@@ -319,16 +190,10 @@ public class ComposeFragment extends Fragment {
         //once async task is finished executing, navigate to generate playlist intent
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
-//            etTracks.setText("");
-//            etArtists.setText("");
-//            etGenres.setText("");
-//            etName.setText("");
-//            etLength.setText("");
             isTask1Completed = true;
 
             if(isTask1Completed){
                 Intent i = new Intent(getActivity(), GeneratePlaylist.class);
-
                 i.putExtra("token", token);
                 i.putExtra("time", time);
                 i.putStringArrayListExtra("rec tracks", (ArrayList<String>) rectrackIds);
@@ -347,153 +212,4 @@ public class ComposeFragment extends Fragment {
             super.onProgressUpdate(values);
         }
     }
-
-    private class DisplayTracks extends AsyncTask<URL, Integer, Long> {
-
-        String query;
-
-        public DisplayTracks(String query) {
-            super();
-            this.query = query;
-            // do stuff
-        }
-
-
-        @Override
-        // (1) takes users input for track&artist, uses search endpoint to get respective ids.
-        // (2) uses seeds as input for recommendations endpoint
-        // (3) create string array list with track ids for each recommended song
-        protected Long doInBackground(URL... urls) {
-
-            SpotifyApi spotifyApi = new SpotifyApi(token);
-            List<QueryType> types = new ArrayList<>();
-
-            //types.add(QueryType.ARTIST);
-            types.add(QueryType.TRACK);
-
-            spotifyApi.searchItem(query, types, extra).getTracks().getItems();
-
-            for (int i =0; i< tracks.size(); i++){
-                Log.i(TAG, "track: " + tracks.get(i).getName());
-            }
-
-
-
-
-            tracks.addAll(spotifyApi.searchItem(query, types, extra).getTracks().getItems());
-
-
-
-
-            return null;
-        }
-        @Override
-        //once async task is finished executing, navigate to generate playlist intent
-        protected void onPostExecute(Long aLong) {
-            super.onPostExecute(aLong);
-            adapter_track.notifyDataSetChanged();
-            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    TrackFull track = (TrackFull) list.getAdapter().getItem(position);
-
-                    listTrackId.add(track.getId());
-
-                    etTracks.setText(track.getName() + ": " + track.getArtists().get(0).getName());
-
-                    //editsearch.setQuery(track.getName() + ": " + track.getArtists().get(0).getName(), false);
-                    list.setAdapter(null);
-                    tracks.removeAll(tracks);
-                    list.setVisibility(View.GONE);
-
-                    if (etTracks.hasFocus()) {
-                        etTracks.clearFocus();
-                    }
-
-
-                }
-            });
-
-
-
-
-
-
-        }
-    }
-
-    private class DisplayArtists extends AsyncTask<URL, Integer, Long> {
-
-        String query;
-
-        public DisplayArtists(String query) {
-            super();
-            this.query = query;
-            // do stuff
-        }
-
-
-        @Override
-        protected Long doInBackground(URL... urls) {
-
-            SpotifyApi spotifyApi = new SpotifyApi(token);
-            List<QueryType> types = new ArrayList<>();
-
-            types.add(QueryType.ARTIST);
-            //types.add(QueryType.TRACK);
-
-            //spotifyApi.searchItem(query, types, extra).getTracks().getItems();
-
-//            for (int i =0; i< tracks.size(); i++){
-//                Log.i(TAG, "track: " + tracks.get(i).getName());
-//            }
-
-
-
-
-            artists.addAll(spotifyApi.searchItem(query, types, extra).getArtists().getItems());
-
-
-
-
-            return null;
-        }
-        @Override
-        //once async task is finished executing, navigate to generate playlist intent
-        protected void onPostExecute(Long aLong) {
-            super.onPostExecute(aLong);
-            adapter_artist.notifyDataSetChanged();
-            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    ArtistFull artist = (ArtistFull) listViewArtists.getAdapter().getItem(position);
-
-                    listArtistId.add(artist.getId());
-
-                    etArtists.setText(artist.getName());
-
-                    //artist_search.setQuery(artist.getName(), false);
-                    listViewArtists.setAdapter(null);
-                    artists.removeAll(artists);
-                    list.setVisibility(View.GONE);
-                    if (etArtists.hasFocus()) {
-                        etArtists.clearFocus();
-                    }
-
-
-                }
-            });
-
-
-
-
-        }
-
-    @Override
-    protected void onProgressUpdate(Integer... values) {
-        super.onProgressUpdate(values);
-    }
-}
-
-
 }
