@@ -37,6 +37,8 @@ import spotify.models.generic.AbstractPlayableObject;
 import spotify.models.playlists.PlaylistTrack;
 import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
+
+
 public class GeneratePlaylist extends AppCompatActivity {
 
     private static final String TAG = "Generate Playlist";
@@ -60,6 +62,7 @@ public class GeneratePlaylist extends AppCompatActivity {
     List<String> listGenres = new ArrayList<>();
     String playlist_valence;
     String playlist_tempo;
+
 
 
 
@@ -133,8 +136,6 @@ public class GeneratePlaylist extends AppCompatActivity {
 
         @Override
         protected Long doInBackground(URL... urls) {
-
-
             SpotifyApi spotifyApi = new SpotifyApi(token);
             String userId = spotifyApi.getCurrentUser().getId();
             CreateUpdatePlaylistRequestBody requestBody = new CreateUpdatePlaylistRequestBody(playlistName, "made this with api", false, false);
@@ -198,5 +199,7 @@ public class GeneratePlaylist extends AppCompatActivity {
 
         }
     }
+
+
 
 }

@@ -148,14 +148,28 @@ public class ComposeFragment extends Fragment {
             }
 
             else if(!TextUtils.isEmpty(etTracks.getText())) {
-                track_id = spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems().get(0).getId();
-                artist_id = spotifyApi.getTrack(track_id, options).getArtists().get(0).getId();
+                try {
+                    track_id = spotifyApi.searchItem(etTracks.getText().toString(), types, extra).getTracks().getItems().get(0).getId();
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), "please enter a valid track name", Toast.LENGTH_SHORT).show();
+                    etTracks.setText("");
+                }
+
+                try {
+                    artist_id = spotifyApi.getTrack(track_id, options).getArtists().get(0).getId();
+
+                }
+                catch (Exception e){
+                    Toast.makeText(getContext(), "please enter a valid artist name", Toast.LENGTH_SHORT).show();
+                    etArtists.setText("");
+                }
             }
 
             else if(!TextUtils.isEmpty(etArtists.getText())){
                 artist_id = spotifyApi.searchItem(etArtists.getText().toString(), types, extra).getArtists().getItems().get(0).getId();
                 track_id = spotifyApi.getArtistTopTracks(artist_id, options).getTracks().get(0).getId();
             }
+
 
 
             listArtistId.add(artist_id);

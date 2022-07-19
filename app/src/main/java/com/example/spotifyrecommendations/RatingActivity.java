@@ -1,6 +1,5 @@
 package com.example.spotifyrecommendations;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
@@ -8,21 +7,17 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.spotifyrecommendations.models.Playlist;
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -34,11 +29,9 @@ import org.json.JSONException;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.audio.AudioFeatures;
@@ -48,7 +41,7 @@ import spotify.models.playlists.PlaylistTrack;
 import spotify.models.playlists.requests.DeleteItemsPlaylistRequestBody;
 import spotify.models.recommendations.RecommendationCollection;
 
-public class RatingActivity extends AppCompatActivity {
+public class RatingActivity extends AppCompatActivity{
     private static final String TAG = "Rating activity";
     String playlist_id;
     String token;
@@ -74,6 +67,9 @@ public class RatingActivity extends AppCompatActivity {
     float avg_valence;
 
     TextView tvTitle;
+
+    SongAlgorithm algo = () -> new updatePlaylistItems().execute();
+
 
     Button btnUpdate;
     Button btnKeep;
@@ -209,7 +205,9 @@ public class RatingActivity extends AppCompatActivity {
                 music_load.setVisibility(View.VISIBLE);
                 music_load.playAnimation();
 
-                new updatePlaylistItems().execute();
+                algo.applySongAlgo();
+
+                //new updatePlaylistItems().execute();
 
             }
         });
@@ -272,8 +270,6 @@ public class RatingActivity extends AppCompatActivity {
 
     }
 
-
-
     private void updatePlaylist(String tempo, String valence) throws ParseException {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
         ParseObject object = query.get(playlist_id);
@@ -302,7 +298,6 @@ public class RatingActivity extends AppCompatActivity {
             //if the user rates the playlist as too sad, but the user pref mood is lower than the playlist valence, change factor will be smaller
             if (seekMood==0 && user_pref_valence<avg_valence){
                 change_factor_mood = .1F;
-
             }
 
             //if the user rates the playlist as too happy, but the user pref mood is happier than the playlist mood, change factor will be smaller
@@ -322,6 +317,13 @@ public class RatingActivity extends AppCompatActivity {
             }
 
             float new_target_valence = avg_valence + change_factor_mood;
+
+
+         //   new_target_valence = changeTemp.run(change_factor_mood, avg_valence);
+
+
+
+
             if (new_target_valence < 0){
                 new_target_valence = (float) 0.1;
             }
@@ -384,27 +386,23 @@ public class RatingActivity extends AppCompatActivity {
                 if(seekTempo==0 && tempo < new_target_tempo){
                     items_to_delete.add(item);
                     num_deleted++;
-
                 }
 
                 //if the user rates the playlist as too fast, and this track is faster than our target tempo, we will delete the track from the playlist
                 else if(seekTempo==2 && tempo > new_target_tempo){
                     items_to_delete.add(item);
                     num_deleted++;
-
                 }
 
                 else if(seekMood==0 && valence < new_target_valence){
                     items_to_delete.add(item);
                     num_deleted++;
-
                 }
 
                 //if the user rates the playlist as too fast, and this track is faster than our target tempo, we will delete the track from the playlist
                 else if(seekMood==2 && valence > new_target_valence){
                     items_to_delete.add(item);
                     num_deleted++;
-
                 }
 
             }
@@ -465,6 +463,7 @@ public class RatingActivity extends AppCompatActivity {
                 sum_valence2 = sum_valence2 + audioFeatures.getValence();
             }
 
+
             float avg_tempo2 = sum_tempo2 / tracks2.size();
             float avg_valence2 = sum_valence2 / tracks2.size();
             Log.i(TAG, "final playlist avg tempo: " + avg_tempo2);
@@ -496,6 +495,7 @@ public class RatingActivity extends AppCompatActivity {
             super.onPreExecute();
             music_load.playAnimation();
         }
+
     }
 
 }

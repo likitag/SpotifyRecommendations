@@ -121,10 +121,13 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                         }
                     }
 
+
                 });
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     gestureDetector.onTouchEvent(event);
+                    Toast.makeText(context, "touch", Toast.LENGTH_SHORT).show();
+                    onClick(v);
                     return true;
                 }
             });
