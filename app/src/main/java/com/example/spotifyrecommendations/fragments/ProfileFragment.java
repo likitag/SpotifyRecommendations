@@ -32,6 +32,7 @@ import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -126,7 +127,7 @@ public class ProfileFragment extends Fragment {
             public void onRefresh() {
 
                 SavedPlaylists.clear();
-                adapter.clear();
+                adapter2.clear();
                 try {
                     queryPlaylistsSaved();
                 } catch (JSONException e) {
@@ -169,6 +170,7 @@ public class ProfileFragment extends Fragment {
         ParseUser user = ParseUser.getCurrentUser();
         JSONArray curr_faves = user.getJSONArray(CustomUser.KEY_FAVORITES);
 
+
         // start an asynchronous call for posts
         query.findInBackground(new FindCallback<Playlist>() {
             @Override
@@ -179,10 +181,10 @@ public class ProfileFragment extends Fragment {
                     return;
                 }
                 // save received posts to list and notify adapter of new data
-                HashSet<String> set_faves= new HashSet<>();
+                HashSet<Object> set_faves = new HashSet<>();
                 for (int i=0; i<curr_faves.length(); i++){
                     try {
-                        set_faves.add((String) curr_faves.get(i));
+                        set_faves.add(curr_faves.get(i));
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
@@ -203,6 +205,7 @@ public class ProfileFragment extends Fragment {
     private void queryPlaylistsSaved() throws JSONException {
         ParseUser user = ParseUser.getCurrentUser();
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
+        query.addDescendingOrder("createdAt");
 
         for (int i = 0; i < user.getJSONArray(CustomUser.KEY_SAVED).length(); i++){
 

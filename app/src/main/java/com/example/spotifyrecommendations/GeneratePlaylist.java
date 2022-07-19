@@ -17,6 +17,8 @@ import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Song;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -120,14 +122,11 @@ public class GeneratePlaylist extends AppCompatActivity {
         playlist.setTrackID(listTrackId.get(0));
         playlist.save();
 
-
-        //TODO: add playlist to favorites
-
         ParseUser user = ParseUser.getCurrentUser();
+        Log.i(TAG, "savePlaylist: adding to faves: " + playlist.getObjectId());
         user.add(CustomUser.KEY_FAVORITES, playlist.getObjectId());
+        user.save();
         finish();
-
-        //newPlaylist = playlist;
 
     }
 
