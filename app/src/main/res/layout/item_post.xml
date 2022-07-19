@@ -82,11 +82,10 @@
     <ImageButton
         android:id="@+id/ibSaved"
         android:layout_width="wrap_content"
-
         android:layout_height="wrap_content"
         android:layout_below="@id/ivPlaylistImage"
         android:layout_toEndOf="@id/tvLikeNum"
         android:backgroundTint="@android:color/transparent"
-        tools:srcCompat="@drawable/ic_baseline_save_alt_24" />
+        tools:src="@drawable/ic_baseline_save_alt_24" />
 
 </RelativeLayout>

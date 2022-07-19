@@ -103,7 +103,6 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             tvLikeNum = itemView.findViewById(R.id.tvLikeNum);
             like = itemView.findViewById(R.id.lottie_heart);
             ibSave = itemView.findViewById(R.id.ibSaved);
-            ibSave.setVisibility(View.VISIBLE);
 
             like.setVisibility(View.GONE);
             unlike = itemView.findViewById(R.id.lottie_break_heart);
@@ -163,9 +162,6 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
             ParseUser user = ParseUser.getCurrentUser();
 
-
-
-
             ivPostImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -185,6 +181,14 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                 }
             });
 
+            tvUsername.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: launch the user's profile
+
+                }
+            });
+
 
 
 
@@ -198,29 +202,27 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                         if (position != RecyclerView.NO_POSITION) {
 
                            Post post = posts.get(position);
-                            Log.i(TAG, "onLongPress: " + CustomUser.KEY_SAVED);
+
                             try {
+                                ibSave.setImageResource(R.drawable.saved);
                                 int ind = check_liked(post.getPlaylistID(), user, CustomUser.KEY_SAVED);
                                 if (ind == -1){
-
-                                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.transparent));
                                     Toast.makeText(context, "saving", Toast.LENGTH_SHORT).show();
-
                                     user.add(CustomUser.KEY_SAVED, post.getPlaylistID());
-                                    user.saveInBackground();
+                                    user.save();
 
                                 }
                                 else {
+                                    ibSave.setImageResource(R.drawable.ic_baseline_save_alt_24);
                                     JSONArray currSaved = user.getJSONArray("saved");
                                     currSaved.remove(ind);
-                                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.transparent));
                                     Toast.makeText(context, "unsaving", Toast.LENGTH_SHORT).show();
                                     user.put(CustomUser.KEY_SAVED, currSaved);
-                                    user.saveInBackground();
+                                    user.save();
 
 
                                 }
-                            } catch (JSONException ex) {
+                            } catch (JSONException | ParseException ex) {
                                 ex.printStackTrace();
                             }
 
@@ -283,6 +285,7 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
 
 
 
+
             itemView.setOnClickListener(this);
         }
 
@@ -336,12 +339,14 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
             try {
                 if (check_liked(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_SAVED) == -1){
-                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.transparent));
+                    ibSave.setImageResource(R.drawable.ic_baseline_save_alt_24);
+
                 }
                 else {
-                    ibSave.setBackgroundColor(context.getResources().getColor(R.color.cool));
+                    ibSave.setImageResource(R.drawable.saved);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

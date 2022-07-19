@@ -20,24 +20,23 @@
         android:textStyle="bold" />
 
     <TextView
-        android:textSize="20dp"
-        android:textColor="@color/white"
         android:id="@+id/tvMyPlaylists"
-        android:fontFamily="@font/julius_sans_one"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tvUsername"
+        android:layout_below="@id/tvTop"
         android:layout_marginStart="10dp"
+        android:fontFamily="@font/julius_sans_one"
         android:text="My Playlists:"
+        android:textColor="@color/white"
+        android:textSize="20dp"
         android:textStyle="bold" />
-
 
 
     <TextView
         android:id="@+id/tvSavedPlaylists"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tvUsername"
+        android:layout_below="@id/tvTop"
         android:layout_marginStart="80dp"
         android:layout_toEndOf="@id/tvMyPlaylists"
         android:fontFamily="@font/julius_sans_one"
@@ -85,6 +84,15 @@
             android:padding="8dp" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/tvTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvUsername"
+        android:layout_marginStart="10dp"
+        android:textColor="#F6E9E9"
+        android:textSize="10sp" />
 
     <!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
 <!--        android:id="@+id/swipeContainer"-->

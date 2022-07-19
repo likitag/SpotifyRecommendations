@@ -137,7 +137,7 @@ public class GeneratePlaylist extends AppCompatActivity {
         protected Long doInBackground(URL... urls) {
             SpotifyApi spotifyApi = new SpotifyApi(token);
             String userId = spotifyApi.getCurrentUser().getId();
-            CreateUpdatePlaylistRequestBody requestBody = new CreateUpdatePlaylistRequestBody(playlistName, "made this with api", false, false);
+            CreateUpdatePlaylistRequestBody requestBody = new CreateUpdatePlaylistRequestBody(playlistName, "made by Spotfind", false, false);
             spotifyApi.createPlaylist(userId, requestBody);
 
             List<String > uris = new ArrayList<>();

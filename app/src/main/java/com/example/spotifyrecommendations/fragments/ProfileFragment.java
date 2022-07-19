@@ -45,6 +45,7 @@ import java.util.Set;
 
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.artists.ArtistFull;
+import spotify.models.artists.ArtistFullCollection;
 import spotify.models.tracks.TrackFull;
 
 //TODO: jsonArray of favorties is currently hodling lpost object ids rather than playlist object ids. Need to add another field for liked playlists
@@ -66,6 +67,10 @@ public class ProfileFragment extends Fragment {
     List<String> fave_tracks=new ArrayList<>();
     private SwipeRefreshLayout swipeContainerSaved;
     private SwipeRefreshLayout swipeContainerMy;
+    private TextView tvTop;
+
+
+
 
 
 
@@ -84,10 +89,12 @@ public class ProfileFragment extends Fragment {
 
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvUsername = view.findViewById(R.id.tvUsername);
+        tvTop = view.findViewById(R.id.tvTop);
         tvUsername.setText(username);
         rvPlaylists = view.findViewById(R.id.rvPlaylists);
         rvPlaylists.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -97,6 +104,10 @@ public class ProfileFragment extends Fragment {
 
         fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
         fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
+
+
+
+
 
 
         Log.i(TAG, "onViewCreated: num fave artists " + fave_artists.size());
@@ -113,6 +124,8 @@ public class ProfileFragment extends Fragment {
         rvSaved.setAdapter(adapter2);
 
         token = sharedPreferences.getString("token", "default");
+
+        new displayFaves().execute();
 
         queryPlaylists();
         try {
@@ -160,6 +173,8 @@ public class ProfileFragment extends Fragment {
         }
         new Task().execute();
     }
+
+
 
     private void queryPlaylists() {
         // specify what type of data we want to query - Post.class
@@ -229,6 +244,58 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    private class displayFaves extends AsyncTask<URL, Integer, Long> {
+        String textFaves;
+
+        @Override
+        protected Long doInBackground(URL... urls) {
+            Map<String, String> options = new HashMap<>();
+            SpotifyApi spotifyApi = new SpotifyApi(token);
+
+            List<String> fave_names_a = new ArrayList<>();
+            List<String> fave_names_t= new ArrayList<>();
+
+            for(int i=0; i<fave_artists.size(); i++) {
+                fave_names_a.add(spotifyApi.getArtist(fave_artists.get(i)).getName());
+                if(i >=3){
+                    break;
+                }
+            }
+
+
+            for(int i=0; i<fave_tracks.size(); i++) {
+                if(i >=3){
+                    continue;
+                }
+                fave_names_t.add(spotifyApi.getTrack(fave_tracks.get(i), options).getName());
+
+            }
+
+
+
+            textFaves = "Favorite Artists: " + " \n" + String.join(", ", fave_names_a) + " \n\n" + "Favorite Tracks: " + " \n" + String.join(", ", fave_names_t)+ " \n";
+
+
+
+
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            tvTop.setText(textFaves);
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+        }
+    }
+
     private class Task extends AsyncTask<URL, Integer, Long> {
 
         @Override
@@ -239,14 +306,12 @@ public class ProfileFragment extends Fragment {
             if (fave_artists.size()==0){
                 fave_artists.add(spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists().get(0).getId());
 
-
             }
 
 
             Map<String, String> opt = new HashMap<>();
             if(fave_tracks.size()==0){
                 opt.put("market", "ES");
-
                 fave_tracks.add(spotifyApi.getArtistTopTracks(fave_artists.get(0), opt).getTracks().get(0).getId());
             }
 
