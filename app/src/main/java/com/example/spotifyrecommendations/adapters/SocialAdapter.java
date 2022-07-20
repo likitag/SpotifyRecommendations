@@ -2,6 +2,7 @@ package com.example.spotifyrecommendations.adapters;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
@@ -11,16 +12,20 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
+import com.example.spotifyrecommendations.MainActivity;
+import com.example.spotifyrecommendations.fragments.ProfileFragment;
 import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.R;
 import com.example.spotifyrecommendations.models.Playlist;
@@ -168,23 +173,46 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         Post post = posts.get(position);
-
                         String uri = post.getPlaylistURI();
-
-
-
                         Intent i = new Intent(Intent.ACTION_VIEW);
                         i.setData(Uri.parse(uri));
                         context.startActivity(i);
                     }
-
                 }
             });
 
             tvUsername.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: launch the user's profile
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(tvUsername.getText().toString() + "'s Spotifind: ");
+                    final TextView user_info = new TextView(context);
+
+                    ParseQuery<ParseUser> query = ParseUser.getQuery();
+                    query.whereEqualTo(CustomUser.KEY_NAME, tvUsername.getText().toString());
+                    int fave_size = 0;
+                    int saved_size = 0;
+                    try {
+                        ParseUser userOther = query.find().get(0);
+                        fave_size = userOther.getJSONArray(CustomUser.KEY_FAVORITES).length();
+                        saved_size = userOther.getJSONArray(CustomUser.KEY_SAVED).length();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    user_info.setText("   " + tvUsername.getText().toString() + " has " + fave_size + " favorited playlists and " + saved_size + " saved playlists");
+                    builder.setView(user_info);
+
+
+
+                    builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+
+                        }
+                    });
+
+                    builder.show();
 
                 }
             });

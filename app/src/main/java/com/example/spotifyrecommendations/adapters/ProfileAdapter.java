@@ -102,37 +102,21 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         TextView tvPlaylistName;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             tvPlaylistName = itemView.findViewById(R.id.tvPlaylistName);
 
-            itemView.setOnTouchListener(new View.OnTouchListener() {
-
-                GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
-
-                    @Override
-                    public void onLongPress(MotionEvent e) {
-                        super.onLongPress(e);
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            Playlist playlist = playlists.get(position);
-                            deletePlaylist(playlist);
-
-
-
-                        }
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        Playlist playlist = playlists.get(position);
+                        deletePlaylist(playlist);
                     }
 
-
-                });
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    gestureDetector.onTouchEvent(event);
-                    Toast.makeText(context, "touch", Toast.LENGTH_SHORT).show();
-                    onClick(v);
                     return true;
                 }
             });
-
-
             itemView.setOnClickListener(this);
         }
 
@@ -153,19 +137,12 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
             return -1;
         }
 
-
-
-
-
-
-
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
                 // get the movie at the position, this won't work if the class is static
                 Playlist playlist = playlists.get(position);
-
                 Boolean isInSaved = false;
 
                 try {
@@ -189,6 +166,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                     rating.putExtra("new playlist id", playlist.getObjectId());
                     context.startActivity(rating);
 
+
+
+
                 }
                 else {
                     Intent spotify_app = new Intent(Intent.ACTION_VIEW);
@@ -196,25 +176,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                     context.startActivity(spotify_app);
 
                 }
-
-                new getSongs().execute();
-
-//                Intent spotify_app = new Intent(Intent.ACTION_VIEW);
-//                spotify_app.setData(Uri.parse(playlist.getURI()));
-
-//                Intent profile = new Intent(context, MainActivity.class);
-////                profile.putExtra("playlist id", playlistId);
-////                profile.putExtra("token", token);
-//
-//                TaskStackBuilder.create(context)
-//                        .addNextIntent(profile)
-//                        // use this method if you want "intentOnTop" to have it's parent chain of activities added to the stack. Otherwise, more "addNextIntent" calls will do.
-//                        .addNextIntentWithParentStack( spotify_app )
-//                        .startActivities();
-
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(playlist.getURI()));
-                //context.startActivity(i);
 
             }
 
@@ -252,9 +213,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                     e.printStackTrace();
                 }
 
-
-
-
             }
         });
 
@@ -279,35 +237,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         return -1;
     }
 
-
-    private class getSongs extends AsyncTask<URL, Integer, Long> {
-
-        @Override
-        protected Long doInBackground(URL... urls) {
-            SpotifyApi spotifyApi = new SpotifyApi(token);
-            Log.i(TAG, "token: " + token);
-            Log.i(TAG, "currUser: " + spotifyApi.getCurrentUser());
-            //spotifyApi.getCurrentUser();
-
-
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Long aLong) {
-
-
-
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-
-
-
-
-        }
-    }
 
 
 }

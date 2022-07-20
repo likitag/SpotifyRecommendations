@@ -505,7 +505,7 @@ public class RatingActivity extends AppCompatActivity{
         protected void onPostExecute(Long aLong) {
             Toast.makeText(RatingActivity.this, "done updating!", Toast.LENGTH_SHORT).show();
             music_load.clearAnimation();
-            RatingActivity.this.finish();
+            finish();
  }
 
         @Override

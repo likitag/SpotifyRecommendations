@@ -102,7 +102,6 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString("token", token);
                     editor.apply();
 
-
                     //executes AsyncTask class
                     getUserCredentials();
                     //new Task().execute();

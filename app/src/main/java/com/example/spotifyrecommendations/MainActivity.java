@@ -36,6 +36,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+//import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
 import java.io.Serializable;
@@ -57,6 +58,9 @@ import spotify.models.artists.ArtistFull;
 import spotify.models.artists.ArtistSimplified;
 import spotify.models.tracks.TrackFull;
 
+
+
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MAIN";
     BottomNavigationView bottomNavigationView;
@@ -72,8 +76,11 @@ public class MainActivity extends AppCompatActivity {
     List<ArtistSimplified> all_top_artists = new ArrayList<>();
     List<TrackFull> top_tracks = new ArrayList<>();
     Boolean isComplete = false;
+    //private SpotifyAppRemote spotifyAppRemote;
 
 //    private Toolbar mToolbar;
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -98,6 +105,15 @@ public class MainActivity extends AppCompatActivity {
         if(item.getItemId() == R.id.new_gc){
 
             RequestNewGroup();
+
+        }
+
+        if(item.getItemId() == R.id.settings){
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Spotifind Account Details");
+
+
+
 
         }
 
@@ -130,12 +146,8 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 else {
-
                     createNewGroup(groupName);
-
                 }
-
-
             }
         });
 
@@ -184,14 +196,8 @@ public class MainActivity extends AppCompatActivity {
         logout = findViewById(R.id.action_logout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         Intent i2 = getIntent();
-        Bundle b = i2.getExtras();
+        //spotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
-
-//        if(b!=null)
-//        {
-//            token =(String) b.get("token");
-//
-//        }
 
         kaaes.spotify.webapi.android.SpotifyApi api_kaees = new kaaes.spotify.webapi.android.SpotifyApi();
         api_kaees.setAccessToken(token);

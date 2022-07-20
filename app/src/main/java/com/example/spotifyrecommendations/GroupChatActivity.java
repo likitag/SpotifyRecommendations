@@ -168,36 +168,30 @@ public class GroupChatActivity extends AppCompatActivity {
     private void DisplayMessages(DataSnapshot snapshot) {
         Iterator iterator = snapshot.getChildren().iterator();
 
+        ParseUser user = ParseUser.getCurrentUser();
 
         while(iterator.hasNext()){
             String chatDate = (String) ((DataSnapshot) iterator.next()).getValue();
             String chatMessage = (String) ((DataSnapshot) iterator.next()).getValue();
             String chatName = (String) ((DataSnapshot) iterator.next()).getValue();
             String chatTime = (String) ((DataSnapshot) iterator.next()).getValue();
-
             chatName = chatName.substring(0, chatName.indexOf("@"));
-
 
             Boolean full  = timeDiff(chatTime, initTime);
 
 
             if (!chatDate.equals(chatDay)) {
                 displayTexts.append(chatDate + " \n " + chatTime + " : \n" + chatName + " \n" + chatMessage + "\n\n\n");
-
             }
             else if (chatDate.equals(chatDay)&&!full){
                 displayTexts.append(chatTime + " : \n" + chatName + " \n" + chatMessage + "\n\n\n");
-
             }
 
             else{
                 displayTexts.append(chatName + " :\n" + chatMessage + "\n\n\n");
-
-
             }
             scroll_view.fullScroll(ScrollView.FOCUS_DOWN);
             initTime = chatTime;
-
             chatDay = chatDate;
 
 
@@ -250,11 +244,7 @@ public class GroupChatActivity extends AppCompatActivity {
         }
 
 
-
-
         String time_curr_chat = hours_curr_string + ":" + mins_curr_string + ":" + "00";
-
-
         String time_init_chat = hours_init_string + ":" + mins_init_string + ":" + "00";
 
 

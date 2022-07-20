@@ -18,6 +18,8 @@ public class CustomUser implements Serializable {
     public static final String KEY_USER = "User";
     public static final String KEY_FAVORITES = "favorites";
     public static final String KEY_SAVED = "saved";
+    public static final String KEY_NAME = "username";
+
 
     ParseUser user;
 
