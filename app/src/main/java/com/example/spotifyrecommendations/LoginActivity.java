@@ -262,10 +262,11 @@ public class LoginActivity extends AppCompatActivity {
         final TextView information = new TextView(LoginActivity.this);
         information.setPadding(20, 20, 20, 20);
         information.setTextSize(15);
-        information.setText("Spotifind will use information regarding your Spotify listening history to create customized playlists for you. " +  "\n" +
+        information.setText("Spotifind will use information regarding your Spotify listening history to create customized playlists for you. " +  "\n\n" +
                 "Spotifind will maintain data regarding the following: " + "\n" +
                 "- every playlist created through this app"+ "\n" +
-                "- all posts that you create" + "\n" + "- all playlists that you favorite or save" + "\n" + "- all messages that are sent in groupchats");
+                "- all posts that you create" + "\n" + "- all playlists that you favorite or save" + "\n" + "- all messages that are sent in groupchats" + "\n\n" +
+                "You are able at any point to view all personal information collected on you, and also delete all personal information collected on you");
 
         builder.setView(information);
         builder.setPositiveButton("Accept and proceed", new DialogInterface.OnClickListener() {

@@ -113,6 +113,39 @@ public class MainActivity extends AppCompatActivity {
         if(item.getItemId() == R.id.settings){
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle("Spotifind Account Details");
+            builder.setPositiveButton("View Collected Data", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    displayMyData();
+
+                }
+            });
+
+            builder.setNegativeButton("Delete my data", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                    builder1.setTitle("Type Delete to proceed and wipe all existing data");
+                    final EditText deleteCommand = new EditText(MainActivity.this);
+                    deleteCommand.setHint("Delete");
+                    builder1.setView(deleteCommand);
+                    builder1.setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String deletion = deleteCommand.getText().toString();
+                            if(TextUtils.equals(deletion, "Delete")){
+                                deleteMyAccount();
+                            }
+                        }
+                    });
+                    builder1.show();
+
+
+                }
+            });
+
+            builder.show();
+
 
 
 
@@ -131,6 +164,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private void deleteMyAccount() {
+        Toast.makeText(this, "deleting", Toast.LENGTH_SHORT).show();
+    }
+
+    private void displayMyData() {
+        Toast.makeText(this, "displaying", Toast.LENGTH_SHORT).show();
     }
 
     private void RequestNewGroup() {
