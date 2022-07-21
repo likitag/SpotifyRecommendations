@@ -52,12 +52,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
     private List<Playlist> playlists;
     SharedPreferences sharedPreferences;
     String token;
-   // String name = prefs.getString("name", "Blank Name"); //"Blank Name" the defaul
-
-
-
-
-
     public ProfileAdapter(Context context, List<Playlist> playlists) {
         this.context = context;
         this.playlists = playlists;
@@ -155,13 +149,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                Log.i(TAG, "onClick: " + playlist.getRated());
-
-
-
                 if (!playlist.getRated() && !isInSaved) {
-                //TODO:launch rating intent
                     Intent rating = new Intent(context, RatingActivity.class);
                     rating.putExtra("new playlist id", playlist.getObjectId());
                     context.startActivity(rating);
@@ -208,11 +196,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                         user.saveInBackground();
                         Toast.makeText(context, "playlist was removed", Toast.LENGTH_SHORT).show();
                     }
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         });
 

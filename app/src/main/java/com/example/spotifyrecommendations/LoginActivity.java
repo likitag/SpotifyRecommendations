@@ -1,8 +1,10 @@
 package com.example.spotifyrecommendations;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -180,7 +183,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(LoginActivity.this, "loggin in firebase", Toast.LENGTH_SHORT).show();
-                            goMainActivity();
+                            //goMainActivity();
+                            showPrivacyRules();
                         }
                         else {
                             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -228,7 +232,8 @@ public class LoginActivity extends AppCompatActivity {
             public void done(ParseException e) {
                 if (e == null) {
                     String email = username + "@gmail.com";
-                    goMainActivity();
+                    //goMainActivity();
+                    showPrivacyRules();
                 } else {
                     Log.e("tag", "done:", e);
 
@@ -248,5 +253,36 @@ public class LoginActivity extends AppCompatActivity {
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("token", token);
         startActivity(i);
+    }
+
+    private void showPrivacyRules() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        builder.setTitle("Spotifind user privacy");
+
+        final TextView information = new TextView(LoginActivity.this);
+        information.setPadding(20, 20, 20, 20);
+        information.setTextSize(15);
+        information.setText("Spotifind will use information regarding your Spotify listening history to create customized playlists for you. " +  "\n" +
+                "Spotifind will maintain data regarding the following: " + "\n" +
+                "- every playlist created through this app"+ "\n" +
+                "- all posts that you create" + "\n" + "- all playlists that you favorite or save" + "\n" + "- all messages that are sent in groupchats");
+
+        builder.setView(information);
+        builder.setPositiveButton("Accept and proceed", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                goMainActivity();
+            }
+        });
+
+        builder.setNegativeButton("Don't accept", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+
+            }
+        });
+        builder.show();
     }
 }

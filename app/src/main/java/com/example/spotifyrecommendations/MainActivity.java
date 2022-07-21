@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifyrecommendations.fragments.ComposeFragment;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     List<ArtistSimplified> all_top_artists = new ArrayList<>();
     List<TrackFull> top_tracks = new ArrayList<>();
     Boolean isComplete = false;
+    Boolean permission = false;
     //private SpotifyAppRemote spotifyAppRemote;
 
 //    private Toolbar mToolbar;
@@ -188,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
         editor = sharedPreferences.edit();
         token = sharedPreferences.getString("token", "default");
 
-//        mToolbar = (Toolbar) findViewById(R.id.main_page_toolbar);
 
         new Task().execute();
         auth = FirebaseAuth.getInstance();
@@ -281,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
         //queryPlaylists();
 
     }
+
 
     private void queryPlaylists() {
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
