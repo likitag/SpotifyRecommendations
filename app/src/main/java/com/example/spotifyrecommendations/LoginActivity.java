@@ -4,9 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -79,15 +82,31 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AuthorizationRequest.Builder builder =
-                        new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-                builder.setScopes(new String[]{"user-modify-playback-state", "user-library-modify", "user-top-read", "playlist-modify-public", "playlist-modify-private", "playlist-read-collaborative", "playlist-read-private"});
-                builder.setShowDialog(true);
-                AuthorizationRequest request = builder.build();
+                if (isInternetConnection()){
+                    AuthorizationRequest.Builder builder =
+                            new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+                    builder.setScopes(new String[]{"user-modify-playback-state", "user-library-modify", "user-top-read", "playlist-modify-public", "playlist-modify-private", "playlist-read-collaborative", "playlist-read-private"});
+                    builder.setShowDialog(true);
+                    AuthorizationRequest request = builder.build();
 
-                AuthorizationClient.openLoginActivity(LoginActivity.this, REQUEST_CODE, request);
+                    AuthorizationClient.openLoginActivity(LoginActivity.this, REQUEST_CODE, request);
+                }
+                else{
+                    Toast.makeText(LoginActivity.this, "Please connect to the internet!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+
+    public  boolean isInternetConnection()
+    {
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            return true;
+        }
+        return false;
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
