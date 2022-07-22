@@ -107,13 +107,34 @@ public class ComposeFragment extends Fragment {
             @Override
             //once user submits inputs, start network requests.
             public void onClick(View v) {
-                new Task().execute();
+                if(TextUtils.isEmpty(etLength.getText())){
+                    Toast.makeText(getContext(), "Please enter a time!", Toast.LENGTH_SHORT).show();
+
+                }
+
+                else if(TextUtils.isEmpty(etName.getText())){
+
+                    Toast.makeText(getContext(), "Please enter a name!", Toast.LENGTH_SHORT).show();
+
+                }
+
+                else if(TextUtils.isEmpty(etGenres.getText())){
+                    Toast.makeText(getContext(), "Please enter a genre!", Toast.LENGTH_SHORT).show();
+
+                }
+                else {
+                    try{
+                        Integer.parseInt(etLength.getText().toString());
+                        new Task().execute();
+                    }
+                    catch(Exception e){
+                        Toast.makeText(getContext(), "Please enter a valid integer time!", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
             }
         });
     }
-
-
-
 
 
     private class Task extends AsyncTask<URL, Integer, Long> {
