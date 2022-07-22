@@ -72,10 +72,13 @@ public class LoginActivity extends AppCompatActivity {
         notes = findViewById(R.id.lottie_music_notes);
         notes.playAnimation();
         music_listen.playAnimation();
+        if (ParseUser.getCurrentUser()!=null){
+            ParseUser.logOut();
+        }
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 AuthorizationRequest.Builder builder =
                         new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
                 builder.setScopes(new String[]{"user-modify-playback-state", "user-library-modify", "user-top-read", "playlist-modify-public", "playlist-modify-private", "playlist-read-collaborative", "playlist-read-private"});
@@ -83,7 +86,6 @@ public class LoginActivity extends AppCompatActivity {
                 AuthorizationRequest request = builder.build();
 
                 AuthorizationClient.openLoginActivity(LoginActivity.this, REQUEST_CODE, request);
-
             }
         });
     }
@@ -136,6 +138,8 @@ public class LoginActivity extends AppCompatActivity {
             public void success(UserPrivate userPrivate, Response response) {
                 username = userPrivate.display_name;
                 password = userPrivate.id;
+                editor.putString("password", password);
+                editor.apply();
                 loginUser(username, password);
             }
 
@@ -155,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
                     signUp(username, password);
                     String email = username + "@gmail.com";
                     mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()){

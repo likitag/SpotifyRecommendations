@@ -59,9 +59,6 @@ public class GroupChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_chat);
         displayTexts = findViewById(R.id.gc_text_display);
-//        tvDate = findViewById(R.id.tvDate);
-//        tvTimeStamp = findViewById(R.id.tvTimeStamp);
-//        tvDisplayName = findViewById(R.id.tvDisplayName);
 
         etMessage = findViewById(R.id.input_group_message);
         btnSend = findViewById(R.id.btnSend);
