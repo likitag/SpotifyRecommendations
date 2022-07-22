@@ -190,18 +190,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteMyAccount() throws ParseException {
+
         ParseUser user = ParseUser.getCurrentUser();
+        //deletes all of user's playlists and posts
+        deleteAllUserData();
+
+        //deletes ParseUSer
         user.delete();
+
+        //deleted firebase user
         final FirebaseUser userf = FirebaseAuth.getInstance().getCurrentUser();
-
-        // Get auth credentials from the user for re-authentication. The example below shows
-        // email and password credentials but there are multiple possible providers,
-        // such as GoogleAuthProvider or FacebookAuthProvider.
-
         AuthCredential credential = EmailAuthProvider
                 .getCredential(user.getUsername() + "@gmail.com", sharedPreferences.getString("password", "default"));
-
-        // Prompt the user to re-provide their sign-in credentials
         userf.reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -221,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
         finish();
 
     }
+
+
 
     private void displayMyData() throws ParseException {
         Toast.makeText(this, "displaying", Toast.LENGTH_SHORT).show();
@@ -249,12 +251,9 @@ public class MainActivity extends AppCompatActivity {
             Gson gson = new GsonBuilder().create();
             String jsonString = gson.toJson(playlist_info);
             user_playlist_data.add(jsonString);
-
-            //Log.i(TAG, "playlist fields " + playlist_info.size() + playlist_info.get("createdAt"));
         }
         all_user_data.addAll(user_playlist_data);
 
-       // Log.i(TAG, "num playlists: " + user_playlist_data.size());
 
         //TODO: get all information on posts created by user
         ParseQuery<ParseObject> query_posts = ParseQuery.getQuery("Post");
@@ -292,6 +291,30 @@ public class MainActivity extends AppCompatActivity {
         rvTest.setAdapter(rvAdapter);
 
     }
+
+    private void deleteAllUserData() throws ParseException {
+        ParseUser user = ParseUser.getCurrentUser();
+        //TODO: get all information about playlists created by user
+        ParseQuery<ParseObject> query_playlists = ParseQuery.getQuery("Playlist");
+        query_playlists.whereEqualTo(Playlist.KEY_AUTHOR, user);
+        List<ParseObject> playlist_objs = query_playlists.find();
+        for (ParseObject playlistObj: playlist_objs){
+            playlistObj.delete();
+            playlistObj.save();
+        }
+
+        ParseQuery<ParseObject> query_posts = ParseQuery.getQuery("Post");
+        query_posts.whereEqualTo(Playlist.KEY_AUTHOR, user);
+        List<ParseObject> post_objs = query_posts.find();
+        for (ParseObject postObj: post_objs){
+            postObj.delete();
+            postObj.save();
+        }
+
+    }
+
+
+
 
     private void RequestNewGroup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
