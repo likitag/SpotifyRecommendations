@@ -1,9 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="i"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ComposeFragment">
+
+    <SearchView
+        android:id="@+id/searchTracks"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSeeds"
+        android:queryHint="track seed">
+
+    </SearchView>
+
+    <SearchView
+        android:id="@+id/searchArtists"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSeeds"
+        android:layout_toEndOf="@id/searchTracks"
+        android:queryHint="artist seed">
+
+
+    </SearchView>
+
+    <ListView
+        android:id="@+id/listviewArtists"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/searchArtists"
+        android:layout_toEndOf="@id/listviewTracks" />
+
+    <ListView
+        android:id="@+id/listviewTracks"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/searchTracks">
+
+    </ListView>
 
     <EditText
         android:id="@+id/etLength"
@@ -11,46 +47,42 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textView"
         android:ems="10"
+        android:fontFamily="monospace"
         android:gravity="start|top"
         android:hint="enter desired playlist length minutes (required)"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        android:textSize="14sp" />
 
-    <EditText
-        android:id="@+id/etArtists"
-        android:layout_width="match_parent"
+
+    <TextView
+        android:id="@+id/tvSeeGenres"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etTracks"
-        android:ems="10"
-        android:gravity="start|top"
-        android:hint="enter an artist (optional)"
-        android:inputType="textMultiLine" />
+        android:layout_below="@id/etName"
+        android:fontFamily="sans-serif-black"
+        android:padding="10dp"
+        android:text="Click here to see a list of all Available Genres!"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/etGenres"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etName"
+        android:layout_below="@id/tvSeeGenres"
         android:ems="10"
+        android:fontFamily="monospace"
         android:gravity="start|top"
         android:hint="enter a genre (required)"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        android:textSize="14sp" />
 
-    <EditText
-        android:id="@+id/etTracks"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etGenres"
-        android:ems="10"
-        android:gravity="start|top"
-
-        android:hint="enter a song (optional)"
-        android:inputType="textMultiLine" />
 
     <Button
         android:id="@+id/btnSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etArtists"
+        android:layout_below="@id/listviewTracks"
         android:text="Generate Playlist!" />
 
     <EditText
@@ -59,18 +91,33 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/etLength"
         android:ems="10"
+        android:fontFamily="monospace"
         android:gravity="start|top"
         android:hint="Give your playist a name (required)"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:background="@drawable/buttons_border"
-        android:text="Enter seeds to make your personal playlist!"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center_vertical"
+        android:text="Make a Playlist!"
+        android:textColor="#673AB7"
         android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tvSeeds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etGenres"
+        android:fontFamily="sans-serif-black"
+        android:padding="10dp"
+        android:text="Find Artist and Track Seeds to better customize your playlist! (optional)"
+        android:textColor="#673AB7"
+        android:textSize="16sp" />
 
 
 </RelativeLayout>
