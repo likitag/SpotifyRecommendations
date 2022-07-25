@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +107,7 @@ public class ComposeFragment extends Fragment {
                 startActivity(see_genres);
             }
         });
-        textView = view.findViewById(R.id.textView);
+        textView = view.findViewById(R.id.tvComposeTitle);
         listViewTracks = view.findViewById(R.id.listviewTracks);
         listViewArtists = view.findViewById(R.id.listviewArtists);
         search_artists = view.findViewById(R.id.searchArtists);

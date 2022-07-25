@@ -20,25 +20,30 @@
         app:lottie_speed="1" />
 
 
-
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="false"
+        android:fontFamily="sans-serif-black"
+        android:padding="10dp"
         android:text="How would you rate this playlist?"
-        android:textSize="18sp"
+        android:textColor="#673AB7"
+        android:textSize="30sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvMood"
-        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvTitle"
         android:layout_marginStart="10dp"
-        android:text="Mood?" />
+        android:layout_marginTop="10dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Mood?"
+        android:textColor="#673AB7"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvTooSad"
@@ -46,18 +51,20 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/seekBarMood"
         android:layout_marginStart="10dp"
-        android:textSize="10dp"
-        android:text="Too Sad" />
+        android:fontFamily="monospace"
+        android:text="Too Sad"
+        android:textSize="10dp" />
 
     <TextView
         android:id="@+id/tvTooHappy"
-        android:textSize="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/seekBarMood"
         android:layout_alignBottom="@id/seekBarMood"
         android:layout_marginStart="10dp"
-        android:text="Too Happy" />
+        android:layout_toEndOf="@id/seekBarMood"
+        android:fontFamily="monospace"
+        android:text="Too Happy"
+        android:textSize="10dp" />
 
 
     <TextView
@@ -66,7 +73,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/seekBarMood"
         android:layout_marginStart="10dp"
+        android:fontFamily="sans-serif-black"
         android:text="Tempo?"
+        android:textColor="#673AB7"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -75,6 +85,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/seekBarTempo"
         android:layout_marginStart="10dp"
+        android:fontFamily="monospace"
         android:text="Too Slow"
         android:textSize="10dp" />
     <SeekBar
@@ -94,6 +105,7 @@
         android:layout_alignBottom="@id/seekBarTempo"
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@id/seekBarTempo"
+        android:fontFamily="monospace"
         android:text="Too Fast"
         android:textSize="10dp" />
 
@@ -115,16 +127,17 @@
         android:layout_below="@id/seekBarTempo"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="Update My Playlist!" />
+        android:text="Update!" />
 
     <Button
         android:id="@+id/btnKeep"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btnUpdate"
+        android:layout_below="@id/seekBarTempo"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="Keep this Playlist!" />
+        android:layout_toEndOf="@id/btnUpdate"
+        android:text="Keep" />
 
 
 
