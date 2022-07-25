@@ -5,11 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".fragments.PostFragment">
 
-    <MultiAutoCompleteTextView
+    <AutoCompleteTextView
         android:id="@+id/etPlaylist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tvTitleChoose" />
+        android:layout_below="@id/tvTitleChoose"
+        android:fontFamily="monospace"
+        android:hint="Start typing..."
+        android:padding="20dp" />
 
 <!--    <SearchView-->
 <!--        android:id="@+id/searchKey"-->
@@ -36,29 +39,34 @@
 
     <EditText
         android:id="@+id/etDescription"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/etPlaylist"
-        android:layout_toEndOf="@id/searchKey"
         android:ems="10"
+        android:fontFamily="monospace"
         android:gravity="start|top"
-        android:hint="Add a description"
-        android:inputType="textMultiLine" />
+        android:hint="Add a caption..."
+        android:inputType="textMultiLine"
+        android:padding="20dp" />
 
     <Button
         android:id="@+id/btnPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/etDescription"
-        android:layout_toEndOf="@id/searchKey"
+        android:layout_marginStart="10dp"
+        android:padding="10dp"
         android:text="post" />
 
     <TextView
         android:id="@+id/tvTitleChoose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose one of your playlists to share"
-        android:textSize="20sp" />
+        android:fontFamily="sans-serif-black"
+        android:padding="10dp"
+        android:text="Choose one of your playlists to share!"
+        android:textColor="#673AB7"
+        android:textSize="23sp" />
 
 
 </RelativeLayout>

@@ -58,7 +58,7 @@ public class ProfileFragment extends Fragment {
     String username;
     String token;
     protected ProfileAdapter adapter;
-    protected ProfileAdapter adapter2;
+    protected ProfileAdapter adapter_saved;
     protected List<Playlist> MyPlaylists;
     protected List<Playlist> SavedPlaylists;
     ParseUser currentUser;
@@ -66,27 +66,15 @@ public class ProfileFragment extends Fragment {
     List<String> fave_artists = new ArrayList<>();
     List<String> fave_tracks=new ArrayList<>();
     private SwipeRefreshLayout swipeContainerSaved;
-    private SwipeRefreshLayout swipeContainerMy;
+    private SwipeRefreshLayout swipeContainerMyPlaylists;
     private TextView tvTop;
-
-
-
-
-
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-
         username = getArguments().getString("username");
         return inflater.inflate(R.layout.fragment_profile, container, false);
-
-
     }
 
 
@@ -100,17 +88,8 @@ public class ProfileFragment extends Fragment {
         rvPlaylists.setLayoutManager(new LinearLayoutManager(getContext()));
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-
-
         fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
         fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
-
-
-
-
-
-
-        Log.i(TAG, "onViewCreated: num fave artists " + fave_artists.size());
 
         rvSaved = view.findViewById(R.id.rvSaved);
         rvSaved.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -118,19 +97,18 @@ public class ProfileFragment extends Fragment {
         adapter = new ProfileAdapter(getContext(), MyPlaylists);
 
         SavedPlaylists = new ArrayList<>();
-        adapter2 = new ProfileAdapter(getContext(), SavedPlaylists);
+        adapter_saved = new ProfileAdapter(getContext(), SavedPlaylists);
 
         rvPlaylists.setAdapter(adapter);
-        rvSaved.setAdapter(adapter2);
+        rvSaved.setAdapter(adapter_saved);
 
         token = sharedPreferences.getString("token", "default");
 
         new displayFaves().execute();
-
-        queryPlaylists();
         try {
+            queryMyPlaylists();
             queryPlaylistsSaved();
-        } catch (JSONException e) {
+        } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }
 
@@ -138,108 +116,80 @@ public class ProfileFragment extends Fragment {
         swipeContainerSaved.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 SavedPlaylists.clear();
-                adapter2.clear();
+                adapter_saved.clear();
                 try {
                     queryPlaylistsSaved();
-                } catch (JSONException e) {
+                } catch (JSONException | ParseException e) {
                     e.printStackTrace();
                 }
                 swipeContainerSaved.setRefreshing(false);
             }
         });
 
-        swipeContainerMy = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainerMy);
-        swipeContainerMy.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeContainerMyPlaylists = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainerMy);
+        swipeContainerMyPlaylists.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 MyPlaylists.clear();
                 adapter.clear();
-                queryPlaylists();
-                swipeContainerMy.setRefreshing(false);
+                try {
+                    queryMyPlaylists();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                swipeContainerMyPlaylists.setRefreshing(false);
             }
         });
 
-
-
         ParseUser user = getArguments().getParcelable("username");
-
         if (user!=null){
             currentUser = user;
         }
         else{
             currentUser = ParseUser.getCurrentUser();
         }
-        new Task().execute();
+        new getUserFavorites().execute();
     }
 
 
 
-    private void queryPlaylists() {
-        // specify what type of data we want to query - Post.class
+    private void queryMyPlaylists() throws ParseException {
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
         query.whereEqualTo(Playlist.KEY_AUTHOR, ParseUser.getCurrentUser());
         query.addDescendingOrder("createdAt");
 
         ParseUser user = ParseUser.getCurrentUser();
         JSONArray curr_faves = user.getJSONArray(CustomUser.KEY_FAVORITES);
-
-
         // start an asynchronous call for posts
-        query.findInBackground(new FindCallback<Playlist>() {
-            @Override
-            public void done(List<Playlist> playlists, ParseException e) {
-                // check for errors
-                if (e != null) {
-                    Log.e("TAG", "Issue with getting playlists", e);
-                    return;
-                }
-                // save received posts to list and notify adapter of new data
-                HashSet<Object> set_faves = new HashSet<>();
-                for (int i=0; i<curr_faves.length(); i++){
-                    try {
-                        set_faves.add(curr_faves.get(i));
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-
-                for (Playlist playlist: playlists){
-                    if(set_faves.contains(playlist.getObjectId())){
-                        MyPlaylists.add(playlist);
-                    }
-                }
-
-                //MyPlaylists.addAll(playlists);
-                adapter.notifyDataSetChanged();
+        List<Playlist> playlists = query.find();
+        HashSet<Object> set_faves = new HashSet<>();
+        for (int i=0; i<curr_faves.length(); i++){
+            try {
+                set_faves.add(curr_faves.get(i));
+            } catch (JSONException ex) {
+                ex.printStackTrace();
             }
-        });
+        }
+
+        for (Playlist playlist: playlists){
+            if(set_faves.contains(playlist.getObjectId())){
+                MyPlaylists.add(playlist);
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 
-    private void queryPlaylistsSaved() throws JSONException {
+    private void queryPlaylistsSaved() throws JSONException, ParseException {
         ParseUser user = ParseUser.getCurrentUser();
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
         query.addDescendingOrder("createdAt");
 
         for (int i = 0; i < user.getJSONArray(CustomUser.KEY_SAVED).length(); i++){
-
             query.whereEqualTo(Playlist.KEY_OBJECT_ID, user.getJSONArray(CustomUser.KEY_SAVED).get(i));
-
-
-            query.findInBackground(new FindCallback<Playlist>() {
-                @Override
-                public void done(List<Playlist> playlists, ParseException e) {
-                    // check for errors
-                    if (e != null) {
-                        Log.e("TAG", "Issue with getting posts", e);
-                        return;
-                    }
-
-                    SavedPlaylists.addAll(playlists);
-                    adapter2.notifyDataSetChanged();
-                }
-            });
+            List<Playlist> playlists = query.find();
+            SavedPlaylists.addAll(playlists);
+            adapter_saved.notifyDataSetChanged();
         }
 
     }
@@ -261,8 +211,6 @@ public class ProfileFragment extends Fragment {
                     break;
                 }
             }
-
-
             for(int i=0; i<fave_tracks.size(); i++) {
                 if(i >=3){
                     continue;
@@ -270,13 +218,9 @@ public class ProfileFragment extends Fragment {
                 fave_names_t.add(spotifyApi.getTrack(fave_tracks.get(i), options).getName());
 
             }
-
-
-
-            textFaves = "Favorite Artists: " + " \n" + String.join(", ", fave_names_a) + " \n\n" + "Favorite Tracks: " + " \n" + String.join(", ", fave_names_t)+ " \n";
-
-
-
+            textFaves = "Favorite Artists: " + " \n" + String.join(", ", fave_names_a)
+                    + " \n\n" + "Favorite Tracks: " + " \n" + String.join(", ", fave_names_t)
+                    + " \n";
 
             return null;
 
@@ -286,18 +230,15 @@ public class ProfileFragment extends Fragment {
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
             tvTop.setText(textFaves);
-
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-
         }
     }
 
-    private class Task extends AsyncTask<URL, Integer, Long> {
-
+    private class getUserFavorites extends AsyncTask<URL, Integer, Long> {
         @Override
         protected Long doInBackground(URL... urls) {
             Map<String, String> options = new HashMap<>();
@@ -305,28 +246,13 @@ public class ProfileFragment extends Fragment {
 
             if (fave_artists.size()==0){
                 fave_artists.add(spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists().get(0).getId());
-
             }
-
 
             Map<String, String> opt = new HashMap<>();
             if(fave_tracks.size()==0){
                 opt.put("market", "ES");
                 fave_tracks.add(spotifyApi.getArtistTopTracks(fave_artists.get(0), opt).getTracks().get(0).getId());
             }
-
-            List<ArtistFull> lst_a = spotifyApi.getArtists(new ArrayList<>(fave_artists)).getArtists();
-            List<TrackFull> lst_t = spotifyApi.getTracks(fave_tracks, options).getTracks();
-
-            for (ArtistFull a: lst_a){
-                Log.i(TAG, "favorite: " + a.getName());
-            }
-
-            for (TrackFull t: lst_t){
-                Log.i(TAG, "favorite: " + t.getName());
-            }
-
-
             return null;
 
         }

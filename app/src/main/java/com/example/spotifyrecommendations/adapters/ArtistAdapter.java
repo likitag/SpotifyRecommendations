@@ -16,22 +16,17 @@ import java.util.Locale;
 import spotify.models.artists.ArtistFull;
 
 public class ArtistAdapter extends BaseAdapter {
-
-    // Declare Variables
-
     Context mContext;
     LayoutInflater inflater;
-    private List<ArtistFull> artistList = null;
+    private List<ArtistFull> artistList;
     private ArrayList<ArtistFull> arraylist;
 
-
-    public ArtistAdapter(Context context, List<ArtistFull> animalNamesList) {
+    public ArtistAdapter(Context context, List<ArtistFull> artistNamesList) {
         mContext = context;
-        this.artistList = animalNamesList;
+        this.artistList = artistNamesList;
         inflater = LayoutInflater.from(mContext);
         this.arraylist = new ArrayList<ArtistFull>();
-        this.arraylist.addAll(animalNamesList);
-
+        this.arraylist.addAll(artistNamesList);
     }
 
     public class ViewHolder {
@@ -58,33 +53,13 @@ public class ArtistAdapter extends BaseAdapter {
         if (view == null) {
             holder = new ViewHolder();
             view = LayoutInflater.from(mContext).inflate(R.layout.search_item, parent, false);
-            // Locate the TextViews in listview_item.xml
             holder.artist = (TextView) view.findViewById(R.id.artist);
-
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
         }
-        // Set the results into TextViews
         holder.artist.setText(artistList.get(position).getName());
-
-
         return view;
     }
 
-    // Filter Class
-    public void filter(String charText) {
-        charText = charText.toLowerCase(Locale.getDefault());
-        artistList.clear();
-        if (charText.length() == 0) {
-            artistList.addAll(arraylist);
-        } else {
-            for (ArtistFull wp : arraylist) {
-                if (wp.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                    artistList.add(wp);
-                }
-            }
-        }
-        notifyDataSetChanged();
-    }
 }

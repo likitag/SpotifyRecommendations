@@ -23,6 +23,8 @@ import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Post;
 import com.example.spotifyrecommendations.R;
 import com.example.spotifyrecommendations.adapters.SocialAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.parse.FindCallback;
 import com.parse.PLog;
 import com.parse.ParseException;
@@ -40,7 +42,6 @@ import java.util.Map;
 
 
 public class SocialFragment extends Fragment {
-    private static final String TAG = "SocialFragment";
     private RecyclerView rvPosts;
     protected SocialAdapter adapter;
     protected List<Post> allPosts;
@@ -48,7 +49,6 @@ public class SocialFragment extends Fragment {
     List<String> key_words = new ArrayList<>();
     Map<String, Integer> scores = new LinkedHashMap<>(); //maps post id with integer score
     Map<String, Map<String, String>> playlist_info = new HashMap<>();
-
     SearchView searchKey;
 
 
@@ -76,7 +76,11 @@ public class SocialFragment extends Fragment {
         rvPosts.setAdapter(adapter);
 
         //stores all playlist info in a hashmap
-        queryPlaylistInfo();
+        try {
+            getPlaylistInfo();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         //queries all posts
         queryPosts();
@@ -95,10 +99,15 @@ public class SocialFragment extends Fragment {
 
                 try {
                     //first we will query all posts that have a match in the post description
-                    queryDescription();
+                    checkDescriptionMatch();
+                    checkAuthorMatch();
+                    checkGenreMatch();
+                    orderPosts();
+
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+
                 return false;
             }
 
@@ -114,93 +123,8 @@ public class SocialFragment extends Fragment {
         });
     }
 
-
-
-    private void queryPlaylistInfo(){
-        ParseQuery<Playlist> query_playlist = ParseQuery.getQuery(Playlist.class);
-        query_playlist.findInBackground(new FindCallback<Playlist>() {
-            @Override
-            public void done(List<Playlist> playlists, ParseException e) {
-
-                for (Playlist playlist: playlists){
-                    Map<String, String> curr_info = new HashMap<>();
-                    //update the scores post
-                    curr_info.put("tempo", playlist.getTempo());
-                    curr_info.put("name", playlist.getName());
-                    curr_info.put("valence", playlist.getValence());
-                    curr_info.put("genre", playlist.getGenre());
-                    playlist_info.put(playlist.getObjectId(), curr_info);
-                }
-            }
-        });
-
-    };
-
-    //give each post a value
-    // match in playlist name = 20pts, description = 10pts, playlist genre = 5pts
-    // hold posts in a hashmap {queried playlist : point value}
-    // sort posts from highest point value -> lowest point value.
-
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void queryDescription() throws ParseException {
-        ParseQuery<Post> query_description = ParseQuery.getQuery(Post.class);
-        for (String s: key_words) {
-            query_description.whereContains(Post.KEY_DESCRIPTION, s);
-            List<Post> posts = query_description.find();
-            for (Post post: posts){
-                //if a post has a match in the description, we will assign it 10 points.
-                scores.put(post.getObjectId(), 10);
-            }
-        }
-
-        //now we will check if the user search query related to any of the playlist characteristics
-        queryPlaylistNameGenre();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void queryPlaylistNameGenre() throws ParseException {
-        ParseQuery<Post> query_name_genre = ParseQuery.getQuery(Post.class);
-        List<Post> posts = query_name_genre.find();
-
-
-        HashSet<String> word_match = new HashSet<>();
-
-        for(Post post: posts){
-
-            //first will check genre match
-            Map<String, String> post_playlist_info = playlist_info.get(post.getPlaylistID());
-            String genre = post_playlist_info.get("genre");
-            if (key_words.contains(genre)){
-                //add score of 20, if the playlist associated with the post has a genre contained in the key words
-                if (scores.get(post.getObjectId()) == null){
-                    scores.put(post.getObjectId(), 20);
-                }
-                else{
-                    scores.put(post.getObjectId(), scores.get(post.getObjectId())+20);}
-            }
-
-            //now we check playlist name match
-            word_match.addAll(key_words);
-            int init_size = word_match.size();
-
-            String name = post_playlist_info.get("name");
-            String str[] = name.split(" ");
-            word_match.addAll(Arrays.asList(str));
-            int final_size = word_match.size();
-
-            if (final_size < init_size + str.length){
-                //number of points added to score is based on the number of word matches between key words and playlist name string
-                if (scores.get(post.getObjectId()) == null){
-                    scores.put(post.getObjectId(), (final_size - init_size));
-
-
-                }
-                else {
-                    scores.put(post.getObjectId(), scores.get(post.getObjectId())+(final_size - init_size));}
-            }
-            word_match.clear();
-        }
-
+    private void orderPosts() throws ParseException {
         List<String> ordered_posts = new ArrayList<>();
         LinkedHashMap<String, Integer> ordered_scores= new LinkedHashMap<>();
 
@@ -208,16 +132,11 @@ public class SocialFragment extends Fragment {
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .forEachOrdered(x -> ordered_scores.put(x.getKey(), x.getValue()));
 
-
         for (String post_id: ordered_scores.keySet()){
             if (ordered_scores.get(post_id) > 0){
                 ordered_posts.add(post_id);
-
             }
-
-
         }
-
         List<Post> final_posts= new ArrayList<>();
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         for (int i = 0; i < ordered_posts.size(); i++){
@@ -229,15 +148,105 @@ public class SocialFragment extends Fragment {
         allPosts.removeAll(allPosts);
         allPosts.addAll(final_posts);
         adapter.notifyDataSetChanged();
+    }
+
+
+    private void getPlaylistInfo() throws ParseException {
+        ParseQuery<Playlist> query_playlist = ParseQuery.getQuery(Playlist.class);
+        List<Playlist> playlists = query_playlist.find();
+        for (Playlist playlist: playlists){
+            Map<String, String> curr_info = new HashMap<>();
+            //update the scores post
+            curr_info.put("tempo", playlist.getTempo());
+            curr_info.put("name", playlist.getName());
+            curr_info.put("valence", playlist.getValence());
+            curr_info.put("genre", playlist.getGenre());
+            playlist_info.put(playlist.getObjectId(), curr_info);
+        }
+    };
+
+    //give each post a value
+    // match in playlist name = 20pts, description = 10pts, playlist genre = 5pts
+    // hold posts in a hashmap {queried playlist : point value}
+    // sort posts from highest point value -> lowest point value.
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void checkDescriptionMatch() throws ParseException {
+        ParseQuery<Post> query_description = ParseQuery.getQuery(Post.class);
+        for (String s: key_words) {
+            query_description.whereContains(Post.KEY_DESCRIPTION, s);
+            List<Post> posts = query_description.find();
+            for (Post post: posts){
+                //if a post has a match in the description, we will assign it 10 points.
+                scores.put(post.getObjectId(), 10);
+
+            }
+        }
+    }
+
+    private void checkAuthorMatch() throws ParseException {
+        ParseQuery<Post> query_authors = ParseQuery.getQuery(Post.class);
+        for (String s: key_words) {
+            List<Post> posts = query_authors.find();
+            for (Post post: posts){
+                if (post.getUser().fetch().getUsername().equals(s)){
+                    if (scores.get(post.getObjectId()) == null){
+                        scores.put(post.getObjectId(), 15);
+                    }
+                    else{
+                        scores.put(post.getObjectId(), scores.get(post.getObjectId())+15);}
+                }
+            }
+        }
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void checkGenreMatch() throws ParseException {
+        ParseQuery<Post> query_name_genre = ParseQuery.getQuery(Post.class);
+        List<Post> posts = query_name_genre.find();
+        for(Post post: posts){
+            //first will check genre match
+            Map<String, String> post_playlist_info = playlist_info.get(post.getPlaylistID());
+            String genre = post_playlist_info.get("genre");
+            if (key_words.contains(genre)){
+                //add score of 20, if the playlist associated with the post has a genre contained in the key words
+                if (scores.get(post.getObjectId()) == null){
+                    scores.put(post.getObjectId(), 20);
+                }
+                else{
+                    scores.put(post.getObjectId(), scores.get(post.getObjectId())+20);}
+            }
+            //now we check playlist name match
+            checkNameMatch(post_playlist_info, post);
+        }
+    }
+
+    private void checkNameMatch(Map<String, String> post_playlist_info, Post post) {
+        HashSet<String> word_match = new HashSet<>();
+        word_match.addAll(key_words);
+        int init_size = word_match.size();
+
+        String name = post_playlist_info.get("name");
+        String str[] = name.split(" ");
+        word_match.addAll(Arrays.asList(str));
+        int final_size = word_match.size();
+
+        if (final_size < init_size + str.length){
+            //number of points added to score is based on the number of word matches between key words and playlist name string
+            if (scores.get(post.getObjectId()) == null){
+                scores.put(post.getObjectId(), (final_size - init_size));
+            }
+            else {
+                scores.put(post.getObjectId(), scores.get(post.getObjectId())+(final_size - init_size));}
+        }
+        word_match.clear();
+    }
 
 
     private void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.addDescendingOrder("createdAt");
-
         query.findInBackground(new FindCallback<Post>() {
             @Override
             public void done(List<Post> posts, ParseException e) {

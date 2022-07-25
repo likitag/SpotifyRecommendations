@@ -21,8 +21,6 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
     public PlaylistAdapter(Context context, List<Song> songs){
         this.context= context;
         this.songs = songs;
-
-
     }
 
     @NonNull
@@ -36,7 +34,6 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
     public void onBindViewHolder(@NonNull PlaylistAdapter.ViewHolder holder, int position) {
         Song song = songs.get(position);
         holder.bind(song);
-
     }
 
     @Override
@@ -51,13 +48,10 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
             super(itemView);
             tvSong = itemView.findViewById(R.id.tvSongName);
             tvArtist = itemView.findViewById(R.id.tvArtistName);
-
-
         }
 
         @Override
         public void onClick(View v) {
-
         }
 
         public void bind(Song song) {

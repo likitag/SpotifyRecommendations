@@ -12,17 +12,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:elevation="10dp"
-        android:fontFamily="@font/julius_sans_one"
+        android:fontFamily="sans-serif-black"
+        android:padding="10dp"
         android:text="Search words or phrases to find relevant posts!"
-        android:textAlignment="center"></TextView>
+        android:textAlignment="textStart"
+        android:textColor="#673AB7"
+        android:textSize="14sp"></TextView>
 
     <SearchView
-        app:iconifiedByDefault="false"
-        android:layout_below="@id/tvText"
         android:id="@+id/searchKey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:queryHint="Find Posts" />
+        android:layout_below="@id/tvText"
+        android:queryHint="Start typing..."
+        app:iconifiedByDefault="false" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPosts"

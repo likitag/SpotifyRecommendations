@@ -15,6 +15,8 @@ public class Song extends ParseObject {
     //public static final String KEY_LIKE = "Like";
     public static final String KEY_SPOTIFYID = "spotifyId";
     public static final String KEY_NAME = "Name";
+    public static final String KEY_PLAYLISTOBJ = "PlaylistObj";
+    public static final String KEY_PREVIEW = "PreviewURL";
 
 
 
@@ -41,6 +43,22 @@ public class Song extends ParseObject {
 
     public void setName(String name){
         put(KEY_NAME, name);
+    }
+
+    public String getPlayObj(){
+        return getString(KEY_PLAYLISTOBJ);
+    }
+
+    public void setPlayObj(String obj){
+        put(KEY_PLAYLISTOBJ, obj);
+    }
+
+    public String getPreview(){
+        return getString(KEY_PREVIEW);
+    }
+
+    public void setPreview(String url){
+        put(KEY_PREVIEW, url);
     }
 
 

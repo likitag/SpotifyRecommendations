@@ -16,19 +16,13 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifyrecommendations.adapters.DialogAdapter;
@@ -37,10 +31,10 @@ import com.example.spotifyrecommendations.fragments.GroupsFragment;
 import com.example.spotifyrecommendations.fragments.PostFragment;
 import com.example.spotifyrecommendations.fragments.ProfileFragment;
 import com.example.spotifyrecommendations.fragments.SocialFragment;
+import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -50,9 +44,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.parse.FindCallback;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -60,7 +51,6 @@ import com.parse.ParseUser;
 //import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,11 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.UserPrivate;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.artists.ArtistFull;
 import spotify.models.artists.ArtistSimplified;
@@ -98,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
     List<TrackFull> top_tracks = new ArrayList<>();
     Boolean isComplete = false;
     Boolean permission = false;
-    //private SpotifyAppRemote spotifyAppRemote;
-
-//    private Toolbar mToolbar;
 
 
 
@@ -118,16 +100,13 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "logging out", Toast.LENGTH_SHORT).show();
             AuthorizationClient.clearCookies(getApplicationContext());
             ParseUser.logOut();
-            ParseUser currentUser = ParseUser.getCurrentUser();
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
             return true;
         }
 
         if(item.getItemId() == R.id.new_gc){
-
             RequestNewGroup();
-
         }
 
         if(item.getItemId() == R.id.settings){
@@ -141,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-
                 }
             });
 
@@ -157,13 +135,12 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             String deletion = deleteCommand.getText().toString();
-                            if(TextUtils.equals(deletion, "Delete")){
+                            if (TextUtils.equals(deletion, "Delete"))
                                 try {
                                     deleteMyAccount();
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
-                            }
                         }
                     });
                     builder1.show();
@@ -178,12 +155,9 @@ public class MainActivity extends AppCompatActivity {
         if(item.getItemId() == R.id.all_gc){
             Fragment newFragment = new GroupsFragment();
             Bundle all_gc_bundle = new Bundle();
-
             all_gc_bundle.putString("gc list", "all gc");
             newFragment.setArguments(all_gc_bundle);
-           // fragmentManager.beginTransaction();
             fragmentManager.beginTransaction().replace(R.id.flContainer, newFragment).commit();
-
         }
 
         return true;
@@ -195,18 +169,18 @@ public class MainActivity extends AppCompatActivity {
         //deletes all of user's playlists and posts
         deleteAllUserData();
 
-        //deletes ParseUSer
+        //deletes ParseUser
         user.delete();
 
         //deleted firebase user
-        final FirebaseUser userf = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser user_firebase = FirebaseAuth.getInstance().getCurrentUser();
         AuthCredential credential = EmailAuthProvider
                 .getCredential(user.getUsername() + "@gmail.com", sharedPreferences.getString("password", "default"));
-        userf.reauthenticate(credential)
+        user_firebase.reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                        userf.delete()
+                        user_firebase.delete()
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
@@ -223,19 +197,70 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void displayMyData() throws ParseException {
         Toast.makeText(this, "displaying", Toast.LENGTH_SHORT).show();
+        List<String> all_user_data = new ArrayList<>();
+
         ParseUser user = ParseUser.getCurrentUser();
-        //TODO: get all information about playlists created by user
+
+        String jsonStringPersonal = get_personal_data(user);
+        all_user_data.add("USER PERSONAL INFO: ");
+        all_user_data.add(jsonStringPersonal);
+
         ParseQuery<ParseObject> query_playlists = ParseQuery.getQuery("Playlist");
         query_playlists.whereEqualTo(Playlist.KEY_AUTHOR, user);
-        List<String> all_user_data = new ArrayList<>();
         List<ParseObject> my_playlists = query_playlists.find();
 
         List<String> user_playlist_data = new ArrayList<>();
         user_playlist_data.add("USER PLAYLIST COLLECTED INFORMATION: ");
+        all_user_data.addAll(get_user_playlist_date(my_playlists));
 
+
+        ParseQuery<ParseObject> query_posts = ParseQuery.getQuery("Post");
+        query_posts.whereEqualTo(Playlist.KEY_AUTHOR, user);
+        List<ParseObject> my_posts = query_posts.find();
+        all_user_data.addAll(get_user_post_data(my_posts));
+        show_collected_info_dialog(all_user_data);
+
+    }
+
+    private void show_collected_info_dialog(List<String> all_user_data) {
+        Dialog dialog = new Dialog(this, R.style.DialogSlideAnim);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.setContentView(R.layout.dialog_layout);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCancelable(true);
+        dialog.show();
+
+        RecyclerView rvTest = (RecyclerView) dialog.findViewById(R.id.rvTest);
+        rvTest.setHasFixedSize(true);
+        rvTest.setLayoutManager(new LinearLayoutManager(this));
+
+        DialogAdapter rvAdapter = new DialogAdapter(this, all_user_data);
+        rvTest.setAdapter(rvAdapter);
+    }
+
+    private List<String> get_user_post_data(List<ParseObject> my_posts) {
+        List<String> user_post_data = new ArrayList<>();
+        user_post_data.add("USER POST COLLECTED INFORMATION: ");
+        for (ParseObject obj: my_posts){
+            Map<String, String> post_info = new HashMap<>();
+            post_info.put("image url", (String) obj.get(Post.KEY_COVER));
+            post_info.put("description", (String) obj.get(Post.KEY_DESCRIPTION));
+            post_info.put("likes", Integer.toString((Integer) obj.get(Post.KEY_LIKES)));
+            post_info.put("playlist id", (String) obj.get(Post.KEY_PLAYLISTID));
+            post_info.put("createdAt", obj.getCreatedAt().toString());
+            Gson gson = new GsonBuilder().create();
+            String jsonString = gson.toJson(post_info);
+            user_post_data.add(jsonString);
+        }
+        return user_post_data;
+    }
+
+    private List<String> get_user_playlist_date(List<ParseObject> my_playlists) {
+        List<String> user_playlist_data = new ArrayList<>();
+        user_playlist_data.add("USER PLAYLIST COLLECTED INFORMATION: ");
         for (ParseObject obj: my_playlists){
             Map<String, String> playlist_info = new HashMap<>();
             playlist_info.put("name", (String) obj.get(Playlist.KEY_NAME));
@@ -252,55 +277,29 @@ public class MainActivity extends AppCompatActivity {
             String jsonString = gson.toJson(playlist_info);
             user_playlist_data.add(jsonString);
         }
-        all_user_data.addAll(user_playlist_data);
+        return user_playlist_data;
+    }
 
-
-        //TODO: get all information on posts created by user
-        ParseQuery<ParseObject> query_posts = ParseQuery.getQuery("Post");
-        query_posts.whereEqualTo(Playlist.KEY_AUTHOR, user);
-        List<ParseObject> my_posts = query_posts.find();
-        List<String> user_post_data = new ArrayList<>();
-        user_post_data.add("USER POST COLLECTED INFORMATION: ");
-
-        for (ParseObject obj: my_posts){
-            Map<String, String> post_info = new HashMap<>();
-            post_info.put("image url", (String) obj.get(Post.KEY_COVER));
-            post_info.put("description", (String) obj.get(Post.KEY_DESCRIPTION));
-            post_info.put("likes", Integer.toString((Integer) obj.get(Post.KEY_LIKES)));
-            post_info.put("playlist id", (String) obj.get(Post.KEY_PLAYLISTID));
-            post_info.put("createdAt", obj.getCreatedAt().toString());
-            Gson gson = new GsonBuilder().create();
-            String jsonString = gson.toJson(post_info);
-            user_post_data.add(jsonString);
-        }
-        all_user_data.addAll(user_post_data);
-
-        Dialog dialog = new Dialog(this, R.style.DialogSlideAnim);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.setContentView(R.layout.dialog_layout);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.setCancelable(true);
-        dialog.show();
-
-        RecyclerView rvTest = (RecyclerView) dialog.findViewById(R.id.rvTest);
-        rvTest.setHasFixedSize(true);
-        rvTest.setLayoutManager(new LinearLayoutManager(this));
-
-        DialogAdapter rvAdapter = new DialogAdapter(this, all_user_data);
-        rvTest.setAdapter(rvAdapter);
-
+    private String get_personal_data(ParseUser user) {
+        Map<String, String> personal_info = new HashMap<>();
+        personal_info.put("username", user.getUsername().toString());
+        personal_info.put("createdAt", user.getCreatedAt().toString());
+        personal_info.put("favorite playlist ids", user.getJSONArray(CustomUser.KEY_FAVORITES).toString());
+        personal_info.put("saved playlist ids", user.getJSONArray(CustomUser.KEY_SAVED).toString());
+        Gson gsonPersonal = new GsonBuilder().create();
+        String jsonStringPersonal = gsonPersonal.toJson(personal_info);
+        return  jsonStringPersonal;
     }
 
     private void deleteAllUserData() throws ParseException {
         ParseUser user = ParseUser.getCurrentUser();
-        //TODO: get all information about playlists created by user
         ParseQuery<ParseObject> query_playlists = ParseQuery.getQuery("Playlist");
         query_playlists.whereEqualTo(Playlist.KEY_AUTHOR, user);
         List<ParseObject> playlist_objs = query_playlists.find();
+        Log.i(TAG, "queryed playlist objs");
         for (ParseObject playlistObj: playlist_objs){
             playlistObj.delete();
-            playlistObj.save();
+            Log.i(TAG, "delete playlist");
         }
 
         ParseQuery<ParseObject> query_posts = ParseQuery.getQuery("Post");
@@ -308,13 +307,9 @@ public class MainActivity extends AppCompatActivity {
         List<ParseObject> post_objs = query_posts.find();
         for (ParseObject postObj: post_objs){
             postObj.delete();
-            postObj.save();
         }
 
     }
-
-
-
 
     private void RequestNewGroup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -344,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         builder.show();
     }
 
@@ -379,67 +373,28 @@ public class MainActivity extends AppCompatActivity {
         reference = FirebaseDatabase.getInstance().getReference();
         logout = findViewById(R.id.action_logout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
-        Intent i2 = getIntent();
-        //spotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-
-
-        kaaes.spotify.webapi.android.SpotifyApi api_kaees = new kaaes.spotify.webapi.android.SpotifyApi();
-        api_kaees.setAccessToken(token);
-        SpotifyService service =  api_kaees.getService();
-        
-        service.getMe(new Callback<UserPrivate>() {
-            @Override
-            public void success(UserPrivate userPrivate, Response response) {
-                Log.d(TAG, "success: ");
-                username = userPrivate.display_name;
-
-                
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "failure: ");
-
-            }
-        });
-        
-
-
-
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 Fragment fragment;
                 switch (menuItem.getItemId()) {
-
-
                     case R.id.action_add:
-
-
-                        //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
                         Bundle bundle2 = new Bundle();
-                        Log.i(TAG, "onNavigationItemSelected: " + token);
                         bundle2.putString("token", token);
                         fragment = new ComposeFragment();
                         fragment.setArguments(bundle2);
                         break;
 
                     case R.id.action_social:
-
-                        //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
                         Bundle bundle3 = new Bundle();
-                        Log.i(TAG, "onNavigationItemSelected: " + token);
                         bundle3.putString("token", token);
                         fragment = new SocialFragment();
                         fragment.setArguments(bundle3);
                         break;
 
                     case R.id.action_post:
-
-
                         fragment = new PostFragment();
-
                         break;
 
                     case R.id.action_home:
@@ -450,75 +405,31 @@ public class MainActivity extends AppCompatActivity {
                         bundle.putString("token", token);
                         fragment = new ProfileFragment();
                         fragment.setArguments(bundle);
-
-
                         break;
-
                 }
-
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
         });
         bottomNavigationView.setSelectedItemId(R.id.action_social);
-
-        //queryPlaylists();
-
-    }
-
-
-    private void queryPlaylists() {
-        ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
-        query.include(Playlist.KEY_AUTHOR);
-        query.findInBackground(new FindCallback<Playlist>() {
-            @Override
-            public void done(List<Playlist> playlists, ParseException e) {
-                if(e!=null){
-                    Log.e(TAG, "issue with getting playlists", e);
-                    return;
-
-                }
-                for (Playlist playlist : playlists){
-                    Log.i(TAG, "Playlist: " + playlist.getName());
-
-                }
-
-            }
-        });
     }
 
     private class Task extends AsyncTask<URL, Integer, Long> {
-
         @Override
         protected Long doInBackground(URL... urls) {
             Map<String, String> options = new HashMap<>();
             SpotifyApi spotifyApi = new SpotifyApi(token);
             username = spotifyApi.getCurrentUser().getDisplayName();
-            Log.i(TAG, "doInBackground: user" + username);
-            Log.i(TAG, "doInBackground: token" + token);
-
             user_top_artists = spotifyApi.getTopArtists(options).getItems();
-            Log.i(TAG, "doInBackground: top" + user_top_artists.size());
-
-
-
             top_tracks = spotifyApi.getTopTracks(options).getItems();
-
             if (user_top_artists.size()==0){
-
-                //Log.i(TAG, "albums new reelase:  " + spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists().get(0));
-
                 all_top_artists.addAll(spotifyApi.getNewReleases(options).getAlbums().getItems().get(0).getArtists());
             }
-
-
 
             Map<String, String> opt = new HashMap<>();
             if(top_tracks.size()==0){
                 opt.put("market", "ES");
-
                 top_tracks.addAll(spotifyApi.getArtistTopTracks(all_top_artists.get(0).getId(), opt).getTracks());
-                Log.i(TAG, "top tracks all: " + spotifyApi.getArtistTopTracks(all_top_artists.get(0).getId(), opt).getTracks().size());
             }
             return null;
         }
@@ -538,11 +449,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-
-            Log.i(TAG, "onPostExecute: main" + set_a.size());
-
-            Log.i(TAG, "onPostExecute: " + set_a.size());
-
             Set<String> set_t = new HashSet<String>();
 
             for (TrackFull t: top_tracks){
@@ -551,7 +457,6 @@ public class MainActivity extends AppCompatActivity {
 
 
             editor.putStringSet("top artists", set_a);
-            editor.apply();
             editor.putStringSet("top tracks", set_t);
             editor.apply();
             isComplete = true;

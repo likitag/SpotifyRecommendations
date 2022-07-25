@@ -293,14 +293,6 @@ public class RatingActivity extends AppCompatActivity{
             float new_target_valence = getNewTargetValence();
             float new_target_tempo = getNewTargetTempo();
 
-            Log.i(TAG, "initial playlist tempo: " + avg_tempo);
-            Log.i(TAG, "initial playlist valence: " + avg_valence);
-
-            //float new_target_tempo = avg_tempo + change_factor_tempo;
-
-
-            Log.i(TAG, "target tempo: " + new_target_tempo);
-
             checkTempoMoodValues(tracks, new_target_tempo, new_target_valence);
 
             deleteSongs(items_to_delete, spotify_playlist_id, options);
@@ -308,9 +300,6 @@ public class RatingActivity extends AppCompatActivity{
             set_new_values(new_target_tempo, new_target_valence);
 
             add_new_songs();
-
-            Log.i(TAG, "final playlist avg tempo: " + getNewAvgValues()[0]);
-            Log.i(TAG, "final playlist avg valence: " + getNewAvgValues()[1]);
 
             try {
                 updatePlaylist(Float.toString(getNewAvgValues()[0]), Float.toString(getNewAvgValues()[1]));
@@ -377,15 +366,11 @@ public class RatingActivity extends AppCompatActivity{
                 }
                 spotifyApi.addItemsToPlaylist(uris, spotify_playlist_id, 0);
             }
-            else {
-                Log.i(TAG, "no songs to delete");
-            }
         }
 
         private void set_new_values(Float new_target_tempo, Float new_target_valence) {
 
             if (seekTempo == 0){
-                Log.i(TAG, "setting minimum tempo: " + new_target_tempo);
                 rec_extra.put("min_tempo", Float.toString(new_target_tempo));
             }
             else if (seekTempo == 2){
@@ -394,11 +379,9 @@ public class RatingActivity extends AppCompatActivity{
             }
 
             if (seekMood == 0){
-                Log.i(TAG, "setting minimum valence: " + new_target_valence);
                 rec_extra.put("min_valence", Float.toString(new_target_valence));
             }
             else if (seekTempo == 2){
-                Log.i(TAG, "setting maximum valence: " + new_target_valence);
                 rec_extra.put("max_valence", Float.toString(new_target_valence));
             }
 
@@ -477,7 +460,6 @@ public class RatingActivity extends AppCompatActivity{
             //if the user rates the playlist as too slow, but the user pref tempo is lower than the playlist tempo, change factor will be smaller
             if (seekTempo==0 && user_pref_tempo<avg_tempo){
                 change_factor= 5;
-
             }
 
             //if the user rates the playlist as too fast, but the user pref tempo is greater than the playlist tempo, change factor will be smaller
@@ -488,7 +470,6 @@ public class RatingActivity extends AppCompatActivity{
             //if the user rates the playlist as too slow, but the user pref tempo is higher than the playlist tempo, change factor will be larger
             else if (seekTempo==0&& user_pref_tempo>avg_tempo){
                 change_factor = 20;
-
             }
 
             //if the user rates the playlist as too fast, and the user pref tempo is lower than the playlist tempo, change factor will be larger

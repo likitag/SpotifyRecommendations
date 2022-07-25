@@ -126,9 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString("token", token);
                     editor.apply();
 
-                    //executes AsyncTask class
                     getUserCredentials();
-                    //new Task().execute();
 
                     break;
 
@@ -182,21 +180,17 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()){
-                                Log.i(TAG, "successfully created firebase user: ");
                                 Toast.makeText(LoginActivity.this, "successfully created firebase user", Toast.LENGTH_SHORT).show();
 
                             }
                             else{
                                 String message = task.getException().toString();
                                 Toast.makeText(LoginActivity.this, "error login firebase: " + message, Toast.LENGTH_SHORT).show();
-                                Log.i(TAG, "error creating firebase user: "+ message);
 
                             }
 
                         }
                     });
-
-                    //Log.e("error", "issue with login", e);
                     return;
 
                 }
@@ -206,8 +200,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            Toast.makeText(LoginActivity.this, "loggin in firebase", Toast.LENGTH_SHORT).show();
-                            //goMainActivity();
+                            Toast.makeText(LoginActivity.this, "logging in firebase", Toast.LENGTH_SHORT).show();
                             showPrivacyRules();
                         }
                         else {
@@ -215,14 +208,12 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()){
-                                        Log.i(TAG, "successfully created firebase user: ");
                                         Toast.makeText(LoginActivity.this, "successfully created firebase user", Toast.LENGTH_SHORT).show();
 
                                     }
                                     else{
                                         String message = task.getException().toString();
                                         Toast.makeText(LoginActivity.this, "error login firebase: " + message, Toast.LENGTH_SHORT).show();
-                                        Log.i(TAG, "error creating firebase user: "+ message);
 
                                     }
 
@@ -234,10 +225,6 @@ public class LoginActivity extends AppCompatActivity {
 
                     }
                 });
-                Log.i(TAG, "logging in old user");
-               // goMainActivity();
-
-
             }
         });
 
@@ -247,7 +234,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signUp(String username, String password){
-        Log.i(TAG, "signing up new user");
         ParseUser user = new ParseUser();
         user.setUsername(username);
         user.setPassword(password);
@@ -255,8 +241,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    String email = username + "@gmail.com";
-                    //goMainActivity();
                     showPrivacyRules();
                 } else {
                     Log.e("tag", "done:", e);

@@ -47,11 +47,11 @@ import java.util.List;
 
 public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder> {
     private static final String TAG = "Social Adapter";
-    private Context context;
+    private Context mContext;
     private List<Post> posts;
 
     public SocialAdapter(Context context, List<Post> posts) {
-        this.context = context;
+        this.mContext = context;
         this.posts = posts;
     }
     // Clean all elements of the recycler
@@ -66,11 +66,10 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_post, parent, false);
         return new ViewHolder(view);
     }
 
@@ -85,15 +84,11 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
         return posts.size();
     }
 
-
-
-
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView tvUsername;
         TextView tvDescription;
         ImageView ivPostImage;
         ImageButton ibLikePost;
-        TextView tvLikeNum;
         LottieAnimationView like;
         LottieAnimationView unlike;
         ImageButton ibSave;
@@ -105,7 +100,6 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             tvDescription = itemView.findViewById(R.id.tvDescription);
             ivPostImage = itemView.findViewById(R.id.ivPlaylistImage);
             ibLikePost = itemView.findViewById(R.id.ibLikePost);
-            tvLikeNum = itemView.findViewById(R.id.tvLikeNum);
             like = itemView.findViewById(R.id.lottie_heart);
             ibSave = itemView.findViewById(R.id.ibSaved);
 
@@ -117,13 +111,10 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                 @Override
                 public void onAnimationStart(Animator animation) {
                     like.setVisibility(View.VISIBLE);
-                    Toast.makeText(context, "animating...", Toast.LENGTH_SHORT).show();
-
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    Toast.makeText(context, " done animating...", Toast.LENGTH_SHORT).show();
                     like.setVisibility(View.GONE);
 
                 }
@@ -143,13 +134,11 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
                 @Override
                 public void onAnimationStart(Animator animation) {
                     unlike.setVisibility(View.VISIBLE);
-                    //Toast.makeText(context, "animating...", Toast.LENGTH_SHORT).show();
 
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    //Toast.makeText(context, " done animating...", Toast.LENGTH_SHORT).show();
                     unlike.setVisibility(View.GONE);
 
                 }
@@ -166,183 +155,127 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             });
 
             ParseUser user = ParseUser.getCurrentUser();
-
             ivPostImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        Post post = posts.get(position);
-                        String uri = post.getPlaylistURI();
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(uri));
-                        context.startActivity(i);
-                    }
+                    launchPlaylist();
                 }
             });
 
             tvUsername.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle(tvUsername.getText().toString() + "'s Spotifind: ");
-                    final TextView user_info = new TextView(context);
-
-                    ParseQuery<ParseUser> query = ParseUser.getQuery();
-                    query.whereEqualTo(CustomUser.KEY_NAME, tvUsername.getText().toString());
-                    int fave_size = 0;
-                    int saved_size = 0;
-                    try {
-                        ParseUser userOther = query.find().get(0);
-                        fave_size = userOther.getJSONArray(CustomUser.KEY_FAVORITES).length();
-                        saved_size = userOther.getJSONArray(CustomUser.KEY_SAVED).length();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    user_info.setText("   " + tvUsername.getText().toString() + " has " + fave_size + " favorited playlists and " + saved_size + " saved playlists");
-                    builder.setView(user_info);
-
-
-
-                    builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-
-                        }
-                    });
-
-                    builder.show();
-
+                    showUserAccountDetails();
                 }
             });
 
-
-
-
             itemView.setOnTouchListener(new View.OnTouchListener() {
-
-                GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
-
+                GestureDetector gestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener(){
                     @Override
                     public void onLongPress(MotionEvent e) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-
-                           Post post = posts.get(position);
-
-                            try {
-                                ibSave.setImageResource(R.drawable.saved);
-                                int ind = check_liked(post.getPlaylistID(), user, CustomUser.KEY_SAVED);
-                                if (ind == -1){
-                                    Toast.makeText(context, "saving", Toast.LENGTH_SHORT).show();
-                                    user.add(CustomUser.KEY_SAVED, post.getPlaylistID());
-                                    user.save();
-
-                                }
-                                else {
-                                    ibSave.setImageResource(R.drawable.ic_baseline_save_alt_24);
-                                    JSONArray currSaved = user.getJSONArray("saved");
-                                    currSaved.remove(ind);
-                                    Toast.makeText(context, "unsaving", Toast.LENGTH_SHORT).show();
-                                    user.put(CustomUser.KEY_SAVED, currSaved);
-                                    user.save();
-
-
-                                }
-                            } catch (JSONException | ParseException ex) {
-                                ex.printStackTrace();
-                            }
-
-
-                        }
+                        saveToProfile(user);
                         super.onLongPress(e);
-                        //Toast.makeText(context, "long press", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-
-
-                            Post post = posts.get(position);
-                            //int curr_likes = post.getLikes();
-
-                            try {
-                                //if not currently liked:
-                                ibLikePost.setImageResource(R.drawable.ic_heart_full);
-                                int ind = check_liked(post.getObjectId(), user, CustomUser.KEY_FAVORITES);
-                                if (ind == -1){
-                                    like.setVisibility(View.VISIBLE);
-                                    like.playAnimation();
-                                    updatePostLikes(1, post.getObjectId());
-                                    user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
-                                    user.saveInBackground();
-
-                                }
-
-                                //is currently liked, need to remove
-                                else {
-                                    unlike.setVisibility(View.VISIBLE);
-                                    unlike.playAnimation();
-                                    ibLikePost.setImageResource(R.drawable.ic_heart_empty);
-                                    JSONArray currFaves = user.getJSONArray("favorites");
-                                    currFaves.remove(ind);
-                                    user.put(CustomUser.KEY_FAVORITES, currFaves);
-                                    user.saveInBackground();
-                                    updatePostLikes(-1, post.getObjectId());
-                                }
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                        //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
-                        //Toast.makeText(context, "double tap", Toast.LENGTH_SHORT).show();
+                        addToFavorites(user);
                         return true;
                     }
                 });
+
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     gestureDetector.onTouchEvent(event);
                     return true;
                 }
             });
-
-
-
-
-
-
             itemView.setOnClickListener(this);
         }
 
-        public void updatePostLikes(int new_likes, String post_id) {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Post");
-            Log.i(TAG, "post id " + post_id );
-
-            query.getInBackground(post_id, new GetCallback<ParseObject>() {
+        private void showUserAccountDetails() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle(tvUsername.getText().toString() + "'s Spotifind: ");
+            final TextView user_info = new TextView(mContext);
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo(CustomUser.KEY_NAME, tvUsername.getText().toString());
+            int fave_size = 0;
+            int saved_size = 0;
+            try {
+                ParseUser userOther = query.find().get(0);
+                fave_size = userOther.getJSONArray(CustomUser.KEY_FAVORITES).length();
+                saved_size = userOther.getJSONArray(CustomUser.KEY_SAVED).length();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            user_info.setText("   " + tvUsername.getText().toString() + " has " + fave_size + " favorited playlists and " + saved_size + " saved playlists");
+            builder.setView(user_info);
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
-                public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        Log.i(TAG, "here!");
-                        int curr_likes = (Integer) object.get("Likes");
-                        object.put("Likes", curr_likes + new_likes);
-                        object.saveInBackground();
-
-
-                    } else {
-                        Log.i(TAG, "sad");
-                        Log.e(TAG, "something went wrong...", e);
-                    }
-
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
                 }
             });
-
+            builder.show();
         }
 
-        public Integer check_liked(String id, ParseUser user, String key) throws JSONException {
+        private void addToFavorites(ParseUser user) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Post post = posts.get(position);
+                try {
+                    //if not currently liked:
+                    ibLikePost.setImageResource(R.drawable.ic_heart_full);
+                    int ind = check_in_array(post.getObjectId(), user, CustomUser.KEY_FAVORITES);
+                    if (ind == -1){
+                        like.setVisibility(View.VISIBLE);
+                        like.playAnimation();
+                        user.add(CustomUser.KEY_FAVORITES, post.getObjectId());
+                        user.saveInBackground();
+                    }
+                    //is currently liked, need to remove
+                    else {
+                        unlike.setVisibility(View.VISIBLE);
+                        unlike.playAnimation();
+                        ibLikePost.setImageResource(R.drawable.ic_heart_empty);
+                        JSONArray currFaves = user.getJSONArray("favorites");
+                        currFaves.remove(ind);
+                        user.put(CustomUser.KEY_FAVORITES, currFaves);
+                        user.saveInBackground();
+                    }
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
 
+        private void saveToProfile(ParseUser user) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Post post = posts.get(position);
+                try {
+                    ibSave.setImageResource(R.drawable.saved);
+                    int ind = check_in_array(post.getPlaylistID(), user, CustomUser.KEY_SAVED);
+                    if (ind == -1){
+                        Toast.makeText(mContext, "saving", Toast.LENGTH_SHORT).show();
+                        user.add(CustomUser.KEY_SAVED, post.getPlaylistID());
+                        user.save();
+                    }
+                    else {
+                        ibSave.setImageResource(R.drawable.ic_baseline_save_alt_24);
+                        JSONArray currSaved = user.getJSONArray("saved");
+                        currSaved.remove(ind);
+                        Toast.makeText(mContext, "unsaving", Toast.LENGTH_SHORT).show();
+                        user.put(CustomUser.KEY_SAVED, currSaved);
+                        user.save();
+                    }
+                } catch (JSONException | ParseException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        public Integer check_in_array(String id, ParseUser user, String key) throws JSONException {
             for (int i = 0; i< user.getJSONArray(key).length(); i++){
                 if (user.getJSONArray(key).get(i).equals(id)){
                     return i;
@@ -351,14 +284,47 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             return -1;
         }
 
-
-
-
         public void bind(Post post) {
-            // Bind the post data to the view elements
-            tvLikeNum.setText(post.getLikes() + " likes");
+            bindHeart(post);
+            bindSave(post);
+            bindUsername(post);
+            bindImage(post);
+            tvDescription.setText(post.getDescription());
+        }
+
+        private void bindImage(Post post) {
+            ParseFile image = post.getImage();
+            if (image != null) {
+                Glide.with(mContext).load(post.getCover()).centerCrop().into(ivPostImage);
+            }
+        }
+
+        private void bindUsername(Post post) {
+            ParseUser author = post.getUser();
             try {
-                if (check_liked(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_FAVORITES) == -1){
+                String username = author.fetchIfNeeded().getString("username");
+                tvUsername.setText(username);
+            } catch (ParseException e) {
+                Log.e("Social adapter", "Something has gone terribly wrong with Parse", e);
+            }
+        }
+
+        private void bindSave(Post post) {
+            try {
+                if (check_in_array(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_SAVED) == -1){
+                    ibSave.setImageResource(R.drawable.ic_baseline_save_alt_24);
+                }
+                else {
+                    ibSave.setImageResource(R.drawable.saved);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void bindHeart(Post post) {
+            try {
+                if (check_in_array(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_FAVORITES) == -1){
                     ibLikePost.setImageResource(R.drawable.ic_heart_empty);
                 }
                 else {
@@ -367,44 +333,26 @@ public class SocialAdapter extends RecyclerView.Adapter<SocialAdapter.ViewHolder
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            try {
-                if (check_liked(post.getObjectId(), ParseUser.getCurrentUser(), CustomUser.KEY_SAVED) == -1){
-                    ibSave.setImageResource(R.drawable.ic_baseline_save_alt_24);
-
-                }
-                else {
-                    ibSave.setImageResource(R.drawable.saved);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            ParseUser author = post.getUser();
-            try {
-               String username = author.fetchIfNeeded().getString("username");
-               Log.i("Social adapter", "author: " + username);
-               tvUsername.setText(username);
-            } catch (ParseException e) {
-                Log.e("Social adapter", "Something has gone terribly wrong with Parse", e);
-            }
-
-            Log.i("Social adapter", "description: " + post.getDescription());
-
-            tvDescription.setText(post.getDescription());
-            ParseFile image = post.getImage();
-
-            if (image != null) {
-                Glide.with(context).load(post.getCover()).centerCrop().into(ivPostImage);
-            }
-
         }
-        @Override
-        public void onClick(View v) {
 
+        @Override
+        public void onClick(View v) { }
+
+        private void launchPlaylist() {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Post post = posts.get(position);
+                String uri = post.getPlaylistURI();
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(uri));
+                mContext.startActivity(i);
+            }
         }
 
 
 }
+
+
 
 }
 

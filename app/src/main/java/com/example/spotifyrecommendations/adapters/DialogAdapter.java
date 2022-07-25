@@ -49,22 +49,22 @@ import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
 public class DialogAdapter extends RecyclerView.Adapter<DialogAdapter.ViewHolder> {
     private static final String TAG = "dialog adapter";
-    private Context context;
-    private List<String> txts;
+    private Context mContext;
+    private List<String> data;
 
-    public DialogAdapter(Context context, List<String> txts) {
-        this.context = context;
-        this.txts = txts;
+    public DialogAdapter(Context context, List<String> data) {
+        this.mContext = context;
+        this.data = data;
     }
     // Clean all elements of the recycler
     public void clear() {
-        txts.clear();
+        data.clear();
         notifyDataSetChanged();
     }
 
     // Add a list of items -- change to type used
     public void addAll(List<String> list) {
-        txts.addAll(list);
+        data.addAll(list);
         notifyDataSetChanged();
     }
 
@@ -72,49 +72,32 @@ public class DialogAdapter extends RecyclerView.Adapter<DialogAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_view_item, parent, false);
-
+        View view = LayoutInflater.from(mContext).inflate(R.layout.list_view_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String txt = txts.get(position);
+        String txt = data.get(position);
         holder.bind(txt);
     }
 
     @Override
     public int getItemCount() {
-        return txts.size();
+        return data.size();
     }
-
-
-
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView tvInfo;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            tvInfo = itemView.findViewById(R.id.text);
-
-
+            tvInfo = itemView.findViewById(R.id.data);
             itemView.setOnClickListener(this);
         }
 
-        public void bind(String txt) {
-            // Bind the post data to the view elements
-
-            tvInfo.setText(txt);
-
-        }
-
-
-
+        public void bind(String data) { tvInfo.setText(data); }
         @Override
-        public void onClick(View v) {
-
-        }
+        public void onClick(View v) {}
     }
 
 

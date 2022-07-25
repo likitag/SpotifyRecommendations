@@ -51,11 +51,8 @@ public class GeneratePlaylist extends AppCompatActivity {
     Map<String, String> options = new HashMap<>();
     private static String playlistId;
     private static String playlist_uri;
-    ProgressBar pb;
     String playlistName;
-    //private static Playlist newPlaylist;
     LottieAnimationView music_load;
-    String playlist_obj_id;
 
 
 
@@ -75,7 +72,6 @@ public class GeneratePlaylist extends AppCompatActivity {
         setContentView(R.layout.activity_generate_playlist);
         Intent i2 = getIntent();
         Bundle b = i2.getExtras();
-        //pb = findViewById(R.id.progress);
         music_load = findViewById(R.id.lottie_music_load);
         music_load.playAnimation();
 
@@ -83,7 +79,6 @@ public class GeneratePlaylist extends AppCompatActivity {
 
         if(b!=null)
         {
-            Log.i(TAG, "bundle not null");
             token =(String) b.get("token");
             spotifyRecs = getIntent().getStringArrayListExtra("rec tracks");
             time = (Integer) b.get("time");
@@ -103,11 +98,6 @@ public class GeneratePlaylist extends AppCompatActivity {
 
 
     private void savePlaylist(String name, int length, String spotifyId, ParseUser author, String uri, String genre, String valence, String tempo) throws JSONException, ParseException {
-        //ParseUser currentUser = ParseUser.getCurrentUser();
-
-        //JSONArray user_playlists = currentUser.getJSONArray("Playlist");
-
-       // Log.i(TAG, "playlist array is null ? " + (user_playlists == null));
         Playlist playlist = new Playlist();
         playlist.setName(name);
         playlist.setLength(length);
@@ -123,7 +113,6 @@ public class GeneratePlaylist extends AppCompatActivity {
         playlist.save();
 
         ParseUser user = ParseUser.getCurrentUser();
-        Log.i(TAG, "savePlaylist: adding to faves: " + playlist.getObjectId());
         user.add(CustomUser.KEY_FAVORITES, playlist.getObjectId());
         user.save();
         finish();
@@ -149,7 +138,6 @@ public class GeneratePlaylist extends AppCompatActivity {
             for (int i=0; i< spotifyApi.getUserPlaylists(userId, extra).getItems().size(); i++){
                 if (spotifyApi.getUserPlaylists(userId, extra).getItems().get(i).getName().equals(playlistName)) {
                     playlistId = spotifyApi.getUserPlaylists(userId, extra).getItems().get(i).getId();
-                    Log.i(TAG, "new playlist id: " +playlistId);
                     break;
                 }
 
@@ -158,9 +146,9 @@ public class GeneratePlaylist extends AppCompatActivity {
             spotifyApi.addItemsToPlaylist(uris, playlistId, 0);
             playlist_uri = spotifyApi.getPlaylist(playlistId, extra).getUri();
 
-            Log.i(TAG, "uri" + playlist_uri);
-
             List<PlaylistTrack> tracks = spotifyApi.getPlaylist(playlistId, options).getTracks().getItems();
+
+
 
             float sum_valence = 0;
             float sum_tempo = 0;
@@ -171,6 +159,7 @@ public class GeneratePlaylist extends AppCompatActivity {
                 AudioFeatures audioFeatures= spotifyApi.getTrackAudioFeatures(trackId);
                 sum_valence = sum_valence + audioFeatures.getValence();
                 sum_tempo = sum_tempo + audioFeatures.getTempo();
+
             }
 
             playlist_valence = Float.toString(sum_valence /tracks.size());
@@ -185,7 +174,6 @@ public class GeneratePlaylist extends AppCompatActivity {
             } catch (JSONException | ParseException e) {
                 e.printStackTrace();
             }
-            Log.i(TAG, "finished adding items to new playlist ");
 
             super.onPostExecute(aLong);
             finish();

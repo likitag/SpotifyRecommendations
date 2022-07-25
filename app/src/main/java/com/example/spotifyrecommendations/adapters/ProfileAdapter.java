@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.spotifyrecommendations.GeneratePlaylist;
 import com.example.spotifyrecommendations.MainActivity;
+import com.example.spotifyrecommendations.PlaylistActivity;
 import com.example.spotifyrecommendations.R;
 import com.example.spotifyrecommendations.RatingActivity;
 import com.example.spotifyrecommendations.models.CustomUser;
@@ -48,12 +49,12 @@ import spotify.models.playlists.requests.CreateUpdatePlaylistRequestBody;
 
 public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHolder> {
     private static final String TAG = "prof adapter";
-    private Context context;
+    private Context mContext;
     private List<Playlist> playlists;
     SharedPreferences sharedPreferences;
     String token;
     public ProfileAdapter(Context context, List<Playlist> playlists) {
-        this.context = context;
+        this.mContext = context;
         this.playlists = playlists;
     }
     // Clean all elements of the recycler
@@ -61,6 +62,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         playlists.clear();
         notifyDataSetChanged();
     }
+
 
     // Add a list of items -- change to type used
     public void addAll(List<Playlist> list) {
@@ -72,8 +74,8 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_playlist, parent, false);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_playlist, parent, false);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         token = sharedPreferences.getString("token", "default");
         return new ViewHolder(view);
     }
@@ -88,8 +90,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
     public int getItemCount() {
         return playlists.size();
     }
-
-
 
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -116,7 +116,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
         public void bind(Playlist playlist) {
             // Bind the post data to the view elements
-
             tvPlaylistName.setText(playlist.getName());
 
         }
@@ -150,55 +149,29 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                     e.printStackTrace();
                 }
                 if (!playlist.getRated() && !isInSaved) {
-                    Intent rating = new Intent(context, RatingActivity.class);
+                    Intent rating = new Intent(mContext, RatingActivity.class);
                     rating.putExtra("new playlist id", playlist.getObjectId());
-                    context.startActivity(rating);
-
-
-
-
+                    mContext.startActivity(rating);
                 }
                 else {
                     Intent spotify_app = new Intent(Intent.ACTION_VIEW);
                     spotify_app.setData(Uri.parse(playlist.getURI()));
-                    context.startActivity(spotify_app);
-
+                    mContext.startActivity(spotify_app);
                 }
-
             }
-
         }
     }
 
     private void deletePlaylist(Playlist playlist) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("Are you sure you want to remove this playlist? (to delete your own playlist from spotify, you must delete through Spotify app)");
         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Playlist");
                 ParseUser user = ParseUser.getCurrentUser();
                 JSONArray currSaved = user.getJSONArray("saved");
                 JSONArray currFaves = user.getJSONArray("favorites");
-                try {
-                    int ind = check_saved(playlist.getObjectId(), user, CustomUser.KEY_SAVED);
-                    if(ind!=-1) {
-                        currSaved.remove(ind);
-                        user.put(CustomUser.KEY_SAVED, currSaved);
-                        user.saveInBackground();
-                        Toast.makeText(context, "playlist was removed", Toast.LENGTH_SHORT).show();
-                    }
-
-                    int ind2 = check_saved(playlist.getObjectId(), user, CustomUser.KEY_FAVORITES);
-                    if(ind2!=-1) {
-                        currFaves.remove(ind2);
-                        user.put(CustomUser.KEY_FAVORITES, currFaves);
-                        user.saveInBackground();
-                        Toast.makeText(context, "playlist was removed", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                updateUser(user, currSaved, currFaves, playlist);
             }
         });
 
@@ -213,7 +186,29 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         builder.show();
     }
 
-    public Integer check_saved(String id, ParseUser user, String key) throws JSONException {
+    private void updateUser(ParseUser user, JSONArray currSaved, JSONArray currFaves, Playlist playlist) {
+        try {
+            int ind_saved = checkArray(playlist.getObjectId(), user, CustomUser.KEY_SAVED);
+            if(ind_saved!=-1) {
+                currSaved.remove(ind_saved);
+                user.put(CustomUser.KEY_SAVED, currSaved);
+                user.saveInBackground();
+                Toast.makeText(mContext, "playlist was removed", Toast.LENGTH_SHORT).show();
+            }
+
+            int ind_favorite = checkArray(playlist.getObjectId(), user, CustomUser.KEY_FAVORITES);
+            if(ind_favorite!=-1) {
+                currFaves.remove(ind_favorite);
+                user.put(CustomUser.KEY_FAVORITES, currFaves);
+                user.saveInBackground();
+                Toast.makeText(mContext, "playlist was removed", Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Integer checkArray(String id, ParseUser user, String key) throws JSONException {
 
         for (int i = 0; i< user.getJSONArray(key).length(); i++){
             if (user.getJSONArray(key).get(i).equals(id)){
