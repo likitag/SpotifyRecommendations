@@ -7,45 +7,38 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.spotifyrecommendations.adapters.ArtistAdapter;
+import com.example.spotifyrecommendations.adapters.TrackAdapter;
 import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.adapters.ProfileAdapter;
 import com.example.spotifyrecommendations.R;
-import com.example.spotifyrecommendations.models.Post;
-import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import spotify.api.spotify.SpotifyApi;
 import spotify.models.artists.ArtistFull;
-import spotify.models.artists.ArtistFullCollection;
 import spotify.models.tracks.TrackFull;
 
 //TODO: jsonArray of favorties is currently hodling lpost object ids rather than playlist object ids. Need to add another field for liked playlists
@@ -54,6 +47,8 @@ public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFrg";
     private RecyclerView rvPlaylists;
     private RecyclerView rvSaved;
+    private RecyclerView lvFaveArtists;
+    private RecyclerView lvFaveTracks;
     private TextView tvUsername;
     String username;
     String token;
@@ -65,9 +60,21 @@ public class ProfileFragment extends Fragment {
     SharedPreferences sharedPreferences;
     List<String> fave_artists = new ArrayList<>();
     List<String> fave_tracks=new ArrayList<>();
+
     private SwipeRefreshLayout swipeContainerSaved;
     private SwipeRefreshLayout swipeContainerMyPlaylists;
     private TextView tvTop;
+
+    protected List<String> fave_names_a = new ArrayList<>();
+    protected List<String> fave_names_t = new ArrayList<>();
+
+    protected ArtistAdapter adapter_fave_artist;
+    protected List<ArtistFull> fave_artist_full;
+
+    protected TrackAdapter adapter_fave_tracks;
+    protected List<TrackFull> fave_tracks_full;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,15 +88,17 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
         tvUsername = view.findViewById(R.id.tvUsername);
         tvTop = view.findViewById(R.id.tvTop);
         tvUsername.setText(username);
         rvPlaylists = view.findViewById(R.id.rvPlaylists);
         rvPlaylists.setLayoutManager(new LinearLayoutManager(getContext()));
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-
         fave_artists.addAll(sharedPreferences.getStringSet("top artists", null));
         fave_tracks.addAll(sharedPreferences.getStringSet("top tracks", null));
+
 
         rvSaved = view.findViewById(R.id.rvSaved);
         rvSaved.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -154,6 +163,8 @@ public class ProfileFragment extends Fragment {
 
 
 
+
+
     private void queryMyPlaylists() throws ParseException {
         ParseQuery<Playlist> query = ParseQuery.getQuery(Playlist.class);
         query.whereEqualTo(Playlist.KEY_AUTHOR, ParseUser.getCurrentUser());
@@ -201,9 +212,6 @@ public class ProfileFragment extends Fragment {
         protected Long doInBackground(URL... urls) {
             Map<String, String> options = new HashMap<>();
             SpotifyApi spotifyApi = new SpotifyApi(token);
-
-            List<String> fave_names_a = new ArrayList<>();
-            List<String> fave_names_t= new ArrayList<>();
 
             for(int i=0; i<fave_artists.size(); i++) {
                 fave_names_a.add(spotifyApi.getArtist(fave_artists.get(i)).getName());
@@ -260,6 +268,7 @@ public class ProfileFragment extends Fragment {
         @Override
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
+
 
         }
 

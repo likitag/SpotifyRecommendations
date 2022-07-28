@@ -55,8 +55,6 @@ public class PlaylistActivity extends AppCompatActivity {
         // specify what type of data we want to query - Post.class
         ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
         query.whereEqualTo(Song.KEY_PLAYLISTOBJ, spot_id);
-
-
         // start an asynchronous call for posts
         query.findInBackground(new FindCallback<Song>() {
             @Override
@@ -68,7 +66,6 @@ public class PlaylistActivity extends AppCompatActivity {
                 }
 
                 // for debugging purposes let's print every post description to logcat
-
 
                 // save received posts to list and notify adapter of new data
                 allSongs.addAll(songs);

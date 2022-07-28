@@ -18,6 +18,11 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.example.spotifyrecommendations.GeneratePlaylist;
+import com.example.spotifyrecommendations.RatingActivity;
+import com.example.spotifyrecommendations.Recommendations;
+import com.example.spotifyrecommendations.Search;
+import com.example.spotifyrecommendations.SongAlgorithm;
 import com.example.spotifyrecommendations.models.CustomUser;
 import com.example.spotifyrecommendations.models.Playlist;
 import com.example.spotifyrecommendations.models.Post;
@@ -41,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class SocialFragment extends Fragment {
     private RecyclerView rvPosts;
     protected SocialAdapter adapter;
@@ -50,6 +56,16 @@ public class SocialFragment extends Fragment {
     Map<String, Integer> scores = new LinkedHashMap<>(); //maps post id with integer score
     Map<String, Map<String, String>> playlist_info = new HashMap<>();
     SearchView searchKey;
+    Search algo = () -> {
+        try {
+            checkDescriptionMatch();
+            checkAuthorMatch();
+            checkGenreMatch();
+            orderPosts();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    };
 
 
 
@@ -97,16 +113,8 @@ public class SocialFragment extends Fragment {
                 //we reverse key words in order to so that the first entered key word appears higher on feed
                 Collections.reverse(key_words);
 
-                try {
-                    //first we will query all posts that have a match in the post description
-                    checkDescriptionMatch();
-                    checkAuthorMatch();
-                    checkGenreMatch();
-                    orderPosts();
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                //apply search algorithm
+                algo.applySearchAlgo();
 
                 return false;
             }

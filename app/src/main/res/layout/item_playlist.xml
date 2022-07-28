@@ -2,8 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginStart="20dp">
+    android:layout_marginStart="20dp"
+    android:background="@color/start"
+    android:orientation="vertical">
 
 
     <TextView
@@ -12,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:fontFamily="sans-serif-medium"
+        android:padding="5dp"
         android:text="Playlist name"
         android:textColor="#0A0B0B"
         android:textSize="18sp" />

@@ -1,7 +1,6 @@
 package com.example.spotifyrecommendations;
 
-@FunctionalInterface  //It is optional
-interface SongAlgorithm {
+public interface SongAlgorithm {
     void applySongAlgo();
 
 }

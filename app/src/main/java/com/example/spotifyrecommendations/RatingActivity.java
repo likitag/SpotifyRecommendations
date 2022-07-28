@@ -452,11 +452,8 @@ public class RatingActivity extends AppCompatActivity{
         }
 
         private Float getNewTargetTempo() {
-
             float change_factor = 0;
-
             //change_factor is how much we want to change the playlist tempo by
-
             //if the user rates the playlist as too slow, but the user pref tempo is lower than the playlist tempo, change factor will be smaller
             if (seekTempo==0 && user_pref_tempo<avg_tempo){
                 change_factor= 5;

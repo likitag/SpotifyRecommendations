@@ -3,15 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".fragments.ProfileFragment">
 
 
     <TextView
         android:id="@+id/tvUsername"
         android:layout_width="wrap_content"
-
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:drawablePadding="10dp"
         android:fontFamily="sans-serif-black"
         android:text="Username"
         android:textColor="#673AB7"
@@ -93,20 +94,21 @@
         android:textColor="#3F51B5"
         android:textSize="10sp" />
 
+
     <!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
-<!--        android:id="@+id/swipeContainer"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/tvMyPlaylists"-->
-<!--        android:layout_marginTop="-1dp">-->
+    <!--        android:id="@+id/swipeContainer"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_below="@id/tvMyPlaylists"-->
+    <!--        android:layout_marginTop="-1dp">-->
 
 
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/rvPlaylists"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:padding="8dp" />-->
+    <!--        <androidx.recyclerview.widget.RecyclerView-->
+    <!--            android:id="@+id/rvPlaylists"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:padding="8dp" />-->
 
-<!--    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
+    <!--    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
 
 </RelativeLayout>

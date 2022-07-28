@@ -62,6 +62,8 @@ public class GeneratePlaylist extends AppCompatActivity {
     String playlist_valence;
     String playlist_tempo;
 
+    Recommendations algo = () -> new Task().execute();
+
 
 
 
@@ -90,7 +92,7 @@ public class GeneratePlaylist extends AppCompatActivity {
 
         }
 
-        new Task().execute();
+        algo.applyRecommendAlgo();
 
 
     }
@@ -121,7 +123,6 @@ public class GeneratePlaylist extends AppCompatActivity {
 
 
     private class Task extends AsyncTask<URL, Integer, Long> {
-
         @Override
         protected Long doInBackground(URL... urls) {
             SpotifyApi spotifyApi = new SpotifyApi(token);
